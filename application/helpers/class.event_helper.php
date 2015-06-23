@@ -2,80 +2,73 @@
 /*
 	This SQL query will create the table to store your object.
 
-	CREATE TABLE `user` (
-	`userid` int(11) NOT NULL auto_increment,
-	`firstname` VARCHAR(255) NOT NULL,
-	`lastname` VARCHAR(255) NOT NULL,
-	`email` VARCHAR(255) NOT NULL,
-	`pass` VARCHAR(255) NOT NULL,
-	`regdate` TIMESTAMP NOT NULL,
-	`lastlogindate` TIMESTAMP NOT NULL,
-	`categoryid` int(11) NOT NULL,
-	`token` VARCHAR(255) NOT NULL, INDEX(`categoryid`), PRIMARY KEY  (`userid`)) ENGINE=MyISAM;
+	CREATE TABLE `event` (
+	`eventid` int(11) NOT NULL auto_increment,
+	`eventname` VARCHAR(255) NOT NULL,
+	`eventdesc` VARCHAR(255) NOT NULL,
+	`eventimage` VARCHAR(255) NOT NULL,
+	`eventlink` VARCHAR(255) NOT NULL,
+	`eventdate` TIMESTAMP NOT NULL,
+	`createddate` TIMESTAMP NOT NULL,
+	`categoryid` int(11) NOT NULL, INDEX(`categoryid`), PRIMARY KEY  (`eventid`)) ENGINE=MyISAM;
 */
 
 /**
-* <b>user</b> class with integrated CRUD methods.
+* <b>event</b> class with integrated CRUD methods.
 * @author Php Object Generator
 * @version POG 3.2 / PHP5
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
-* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=user&attributeList=array+%28%0A++0+%3D%3E+%27firstname%27%2C%0A++1+%3D%3E+%27lastname%27%2C%0A++2+%3D%3E+%27email%27%2C%0A++3+%3D%3E+%27pass%27%2C%0A++4+%3D%3E+%27regdate%27%2C%0A++5+%3D%3E+%27lastlogindate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A++7+%3D%3E+%27token%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A++7+%3D%3E+%27VARCHAR%28255%29%27%2C%0A%29
+* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=event&attributeList=array+%28%0A++0+%3D%3E+%27eventname%27%2C%0A++1+%3D%3E+%27eventdesc%27%2C%0A++2+%3D%3E+%27eventimage%27%2C%0A++3+%3D%3E+%27eventlink%27%2C%0A++4+%3D%3E+%27eventdate%27%2C%0A++5+%3D%3E+%27createddate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A%29
 */
-include_once('class.pog_base.php');
-class user extends POG_Base
+//include_once('class.pog_base.php');
+class event extends POG_Base
 {
-	public $userId = '';
+	public $eventId = '';
 
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $firstname;
+	public $eventname;
 	
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $lastname;
+	public $eventdesc;
 	
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $email;
+	public $eventimage;
 	
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $pass;
+	public $eventlink;
 	
 	/**
 	 * @var TIMESTAMP
 	 */
-	public $regdate;
+	public $eventdate;
 	
 	/**
 	 * @var TIMESTAMP
 	 */
-	public $lastlogindate;
+	public $createddate;
 	
 	/**
 	 * @var INT(11)
 	 */
 	public $categoryId;
 	
-	/**
-	 * @var VARCHAR(255)
-	 */
-	public $token;
-	
 	public $pog_attribute_type = array(
-		"userId" => array('db_attributes' => array("NUMERIC", "INT")),
-		"firstname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"lastname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"email" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"pass" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"regdate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
-		"lastlogindate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
+		"eventId" => array('db_attributes' => array("NUMERIC", "INT")),
+		"eventname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"eventdesc" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"eventimage" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"eventlink" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"eventdate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
+		"createddate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
 		"category" => array('db_attributes' => array("OBJECT", "BELONGSTO")),
-		"token" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		);
 	public $pog_query;
 	
@@ -96,39 +89,37 @@ class user extends POG_Base
 		}
 	}
 	
-	function user($firstname='', $lastname='', $email='', $pass='', $regdate='', $lastlogindate='', $token='')
+	function event($eventname='', $eventdesc='', $eventimage='', $eventlink='', $eventdate='', $createddate='')
 	{
-		$this->firstname = $firstname;
-		$this->lastname = $lastname;
-		$this->email = $email;
-		$this->pass = $pass;
-		$this->regdate = $regdate;
-		$this->lastlogindate = $lastlogindate;
-		$this->token = $token;
+		$this->eventname = $eventname;
+		$this->eventdesc = $eventdesc;
+		$this->eventimage = $eventimage;
+		$this->eventlink = $eventlink;
+		$this->eventdate = $eventdate;
+		$this->createddate = $createddate;
 	}
 	
 	
 	/**
 	* Gets object from database
-	* @param integer $userId 
-	* @return object $user
+	* @param integer $eventId 
+	* @return object $event
 	*/
-	function Get($userId)
+	function Get($eventId)
 	{
 		$connection = Database::Connect();
-		$this->pog_query = "select * from `user` where `userid`='".intval($userId)."' LIMIT 1";
+		$this->pog_query = "select * from `event` where `eventid`='".intval($eventId)."' LIMIT 1";
 		$cursor = Database::Reader($this->pog_query, $connection);
 		while ($row = Database::Read($cursor))
 		{
-			$this->userId = $row['userid'];
-			$this->firstname = $this->Unescape($row['firstname']);
-			$this->lastname = $this->Unescape($row['lastname']);
-			$this->email = $this->Unescape($row['email']);
-			$this->pass = $this->Unescape($row['pass']);
-			$this->regdate = $row['regdate'];
-			$this->lastlogindate = $row['lastlogindate'];
+			$this->eventId = $row['eventid'];
+			$this->eventname = $this->Unescape($row['eventname']);
+			$this->eventdesc = $this->Unescape($row['eventdesc']);
+			$this->eventimage = $this->Unescape($row['eventimage']);
+			$this->eventlink = $this->Unescape($row['eventlink']);
+			$this->eventdate = $row['eventdate'];
+			$this->createddate = $row['createddate'];
 			$this->categoryId = $row['categoryid'];
-			$this->token = $this->Unescape($row['token']);
 		}
 		return $this;
 	}
@@ -140,14 +131,14 @@ class user extends POG_Base
 	* @param string $sortBy 
 	* @param boolean $ascending 
 	* @param int limit 
-	* @return array $userList
+	* @return array $eventList
 	*/
 	function GetList($fcv_array = array(), $sortBy='', $ascending=true, $limit='')
 	{
 		$connection = Database::Connect();
 		$sqlLimit = ($limit != '' ? "LIMIT $limit" : '');
-		$this->pog_query = "select * from `user` ";
-		$userList = Array();
+		$this->pog_query = "select * from `event` ";
+		$eventList = Array();
 		if (sizeof($fcv_array) > 0)
 		{
 			$this->pog_query .= " where ";
@@ -205,81 +196,78 @@ class user extends POG_Base
 		}
 		else
 		{
-			$sortBy = "userid";
+			$sortBy = "eventid";
 		}
 		$this->pog_query .= " order by ".$sortBy." ".($ascending ? "asc" : "desc")." $sqlLimit";
 		$thisObjectName = get_class($this);
 		$cursor = Database::Reader($this->pog_query, $connection);
 		while ($row = Database::Read($cursor))
 		{
-			$user = new $thisObjectName();
-			$user->userId = $row['userid'];
-			$user->firstname = $this->Unescape($row['firstname']);
-			$user->lastname = $this->Unescape($row['lastname']);
-			$user->email = $this->Unescape($row['email']);
-			$user->pass = $this->Unescape($row['pass']);
-			$user->regdate = $row['regdate'];
-			$user->lastlogindate = $row['lastlogindate'];
-			$user->categoryId = $row['categoryid'];
-			$user->token = $this->Unescape($row['token']);
-			$userList[] = $user;
+			$event = new $thisObjectName();
+			$event->eventId = $row['eventid'];
+			$event->eventname = $this->Unescape($row['eventname']);
+			$event->eventdesc = $this->Unescape($row['eventdesc']);
+			$event->eventimage = $this->Unescape($row['eventimage']);
+			$event->eventlink = $this->Unescape($row['eventlink']);
+			$event->eventdate = $row['eventdate'];
+			$event->createddate = $row['createddate'];
+			$event->categoryId = $row['categoryid'];
+			$eventList[] = $event;
 		}
-		return $userList;
+		return $eventList;
 	}
 	
 	
 	/**
 	* Saves the object to the database
-	* @return integer $userId
+	* @return integer $eventId
 	*/
 	function Save()
 	{
 		$connection = Database::Connect();
 		$rows = 0;
-		if ($this->userId!=''){
-			$this->pog_query = "select `userid` from `user` where `userid`='".$this->userId."' LIMIT 1";
+		if ($this->eventId!=''){
+			$this->pog_query = "select `eventid` from `event` where `eventid`='".$this->eventId."' LIMIT 1";
 			$rows = Database::Query($this->pog_query, $connection);
 		}
 		if ($rows > 0)
 		{
-			$this->pog_query = "update `user` set 
-			`firstname`='".$this->Escape($this->firstname)."', 
-			`lastname`='".$this->Escape($this->lastname)."', 
-			`email`='".$this->Escape($this->email)."', 
-			`pass`='".$this->Escape($this->pass)."', 
-			`regdate`='".$this->regdate."', 
-			`lastlogindate`='".$this->lastlogindate."', 
-			`categoryid`='".$this->categoryId."', 
-			`token`='".$this->Escape($this->token)."' where `userid`='".$this->userId."'";
+			$this->pog_query = "update `event` set 
+			`eventname`='".$this->Escape($this->eventname)."', 
+			`eventdesc`='".$this->Escape($this->eventdesc)."', 
+			`eventimage`='".$this->Escape($this->eventimage)."', 
+			`eventlink`='".$this->Escape($this->eventlink)."', 
+			`eventdate`='".$this->eventdate."', 
+			`createddate`='".$this->createddate."', 
+			`categoryid`='".$this->categoryId."' where `eventid`='".$this->eventId."'";
 		}
 		else
 		{
-			$this->pog_query = "insert into `user` (`firstname`, `lastname`, `email`, `pass`, `regdate`, `lastlogindate`, `categoryid`, `token` ) values (
-			'".$this->Escape($this->firstname)."', 
-			'".$this->Escape($this->lastname)."', 
-			'".$this->Escape($this->email)."', 
-			'".$this->Escape($this->pass)."', 
-			'".$this->regdate."', 
-			'".$this->lastlogindate."', 
-			'".$this->categoryId."', 
-			'".$this->Escape($this->token)."' )";
+			$this->pog_query = "insert into `event` (`eventname`, `eventdesc`, `eventimage`, `eventlink`, `eventdate`, `createddate`, `categoryid` ) values (
+			'".$this->Escape($this->eventname)."', 
+			'".$this->Escape($this->eventdesc)."', 
+			'".$this->Escape($this->eventimage)."', 
+			'".$this->Escape($this->eventlink)."', 
+			'".$this->eventdate."', 
+			'".$this->createddate."', 
+			'".$this->categoryId."' )";
 		}
 		$insertId = Database::InsertOrUpdate($this->pog_query, $connection);
-		if ($this->userId == "")
+		if ($this->eventId == "")
 		{
-			$this->userId = $insertId;
+			$this->eventId = $insertId;
 		}
-		return $this->userId;
+		return $this->eventId;
 	}
 	
 	
 	/**
 	* Clones the object and saves it to the database
-	* @return integer $userId
+	* @return integer $eventId
 	*/
 	function SaveNew()
 	{
-		$this->userId = '';
+		$this->eventId = '';
 		return $this->Save();
 	}
 	
@@ -291,7 +279,7 @@ class user extends POG_Base
 	function Delete()
 	{
 		$connection = Database::Connect();
-		$this->pog_query = "delete from `user` where `userid`='".$this->userId."'";
+		$this->pog_query = "delete from `event` where `eventid`='".$this->eventId."'";
 		return Database::NonQuery($this->pog_query, $connection);
 	}
 	
@@ -307,7 +295,7 @@ class user extends POG_Base
 		if (sizeof($fcv_array) > 0)
 		{
 			$connection = Database::Connect();
-			$pog_query = "delete from `user` where ";
+			$pog_query = "delete from `event` where ";
 			for ($i=0, $c=sizeof($fcv_array); $i<$c; $i++)
 			{
 				if (sizeof($fcv_array[$i]) == 1)

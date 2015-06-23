@@ -21,7 +21,7 @@
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
 * @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=user&attributeList=array+%28%0A++0+%3D%3E+%27firstname%27%2C%0A++1+%3D%3E+%27lastname%27%2C%0A++2+%3D%3E+%27email%27%2C%0A++3+%3D%3E+%27pass%27%2C%0A++4+%3D%3E+%27regdate%27%2C%0A++5+%3D%3E+%27lastlogindate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A++7+%3D%3E+%27token%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A++7+%3D%3E+%27VARCHAR%28255%29%27%2C%0A%29
 */
-include_once('class.pog_base.php');
+//include_once('class.pog_base.php');
 class user extends POG_Base
 {
 	public $userId = '';

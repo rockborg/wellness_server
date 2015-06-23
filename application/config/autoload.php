@@ -88,7 +88,7 @@ $autoload['drivers'] = array();
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('email','date');
+$autoload['helper'] = array('configuration','class.database','class.pog_base','class.app','class.blog','class.category','class.event','class.list_platform','class.user','class.website','general','email','date','url');
 
 
 /*

@@ -2,80 +2,73 @@
 /*
 	This SQL query will create the table to store your object.
 
-	CREATE TABLE `user` (
-	`userid` int(11) NOT NULL auto_increment,
-	`firstname` VARCHAR(255) NOT NULL,
-	`lastname` VARCHAR(255) NOT NULL,
-	`email` VARCHAR(255) NOT NULL,
-	`pass` VARCHAR(255) NOT NULL,
-	`regdate` TIMESTAMP NOT NULL,
-	`lastlogindate` TIMESTAMP NOT NULL,
-	`categoryid` int(11) NOT NULL,
-	`token` VARCHAR(255) NOT NULL, INDEX(`categoryid`), PRIMARY KEY  (`userid`)) ENGINE=MyISAM;
+	CREATE TABLE `app` (
+	`appid` int(11) NOT NULL auto_increment,
+	`appname` VARCHAR(255) NOT NULL,
+	`appdesc` VARCHAR(255) NOT NULL,
+	`appimage` VARCHAR(255) NOT NULL,
+	`applink` VARCHAR(255) NOT NULL,
+	`appplatform` VARCHAR(255) NOT NULL,
+	`createddate` TIMESTAMP NOT NULL,
+	`categoryid` int(11) NOT NULL, INDEX(`categoryid`), PRIMARY KEY  (`appid`)) ENGINE=MyISAM;
 */
 
 /**
-* <b>user</b> class with integrated CRUD methods.
+* <b>app</b> class with integrated CRUD methods.
 * @author Php Object Generator
 * @version POG 3.2 / PHP5
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
-* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=user&attributeList=array+%28%0A++0+%3D%3E+%27firstname%27%2C%0A++1+%3D%3E+%27lastname%27%2C%0A++2+%3D%3E+%27email%27%2C%0A++3+%3D%3E+%27pass%27%2C%0A++4+%3D%3E+%27regdate%27%2C%0A++5+%3D%3E+%27lastlogindate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A++7+%3D%3E+%27token%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A++7+%3D%3E+%27VARCHAR%28255%29%27%2C%0A%29
+* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=app&attributeList=array+%28%0A++0+%3D%3E+%27appname%27%2C%0A++1+%3D%3E+%27appdesc%27%2C%0A++2+%3D%3E+%27appimage%27%2C%0A++3+%3D%3E+%27applink%27%2C%0A++4+%3D%3E+%27appplatform%27%2C%0A++5+%3D%3E+%27createddate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A%29
 */
-include_once('class.pog_base.php');
-class user extends POG_Base
+//include_once('class.pog_base.php');
+class app extends POG_Base
 {
-	public $userId = '';
+	public $appId = '';
 
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $firstname;
+	public $appname;
 	
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $lastname;
+	public $appdesc;
 	
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $email;
+	public $appimage;
 	
 	/**
 	 * @var VARCHAR(255)
 	 */
-	public $pass;
+	public $applink;
+	
+	/**
+	 * @var VARCHAR(255)
+	 */
+	public $appplatform;
 	
 	/**
 	 * @var TIMESTAMP
 	 */
-	public $regdate;
-	
-	/**
-	 * @var TIMESTAMP
-	 */
-	public $lastlogindate;
+	public $createddate;
 	
 	/**
 	 * @var INT(11)
 	 */
 	public $categoryId;
 	
-	/**
-	 * @var VARCHAR(255)
-	 */
-	public $token;
-	
 	public $pog_attribute_type = array(
-		"userId" => array('db_attributes' => array("NUMERIC", "INT")),
-		"firstname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"lastname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"email" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"pass" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"regdate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
-		"lastlogindate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
+		"appId" => array('db_attributes' => array("NUMERIC", "INT")),
+		"appname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"appdesc" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"appimage" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"applink" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"appplatform" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"createddate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
 		"category" => array('db_attributes' => array("OBJECT", "BELONGSTO")),
-		"token" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		);
 	public $pog_query;
 	
@@ -96,39 +89,37 @@ class user extends POG_Base
 		}
 	}
 	
-	function user($firstname='', $lastname='', $email='', $pass='', $regdate='', $lastlogindate='', $token='')
+	function app($appname='', $appdesc='', $appimage='', $applink='', $appplatform='', $createddate='')
 	{
-		$this->firstname = $firstname;
-		$this->lastname = $lastname;
-		$this->email = $email;
-		$this->pass = $pass;
-		$this->regdate = $regdate;
-		$this->lastlogindate = $lastlogindate;
-		$this->token = $token;
+		$this->appname = $appname;
+		$this->appdesc = $appdesc;
+		$this->appimage = $appimage;
+		$this->applink = $applink;
+		$this->appplatform = $appplatform;
+		$this->createddate = $createddate;
 	}
 	
 	
 	/**
 	* Gets object from database
-	* @param integer $userId 
-	* @return object $user
+	* @param integer $appId 
+	* @return object $app
 	*/
-	function Get($userId)
+	function Get($appId)
 	{
 		$connection = Database::Connect();
-		$this->pog_query = "select * from `user` where `userid`='".intval($userId)."' LIMIT 1";
+		$this->pog_query = "select * from `app` where `appid`='".intval($appId)."' LIMIT 1";
 		$cursor = Database::Reader($this->pog_query, $connection);
 		while ($row = Database::Read($cursor))
 		{
-			$this->userId = $row['userid'];
-			$this->firstname = $this->Unescape($row['firstname']);
-			$this->lastname = $this->Unescape($row['lastname']);
-			$this->email = $this->Unescape($row['email']);
-			$this->pass = $this->Unescape($row['pass']);
-			$this->regdate = $row['regdate'];
-			$this->lastlogindate = $row['lastlogindate'];
+			$this->appId = $row['appid'];
+			$this->appname = $this->Unescape($row['appname']);
+			$this->appdesc = $this->Unescape($row['appdesc']);
+			$this->appimage = $this->Unescape($row['appimage']);
+			$this->applink = $this->Unescape($row['applink']);
+			$this->appplatform = $this->Unescape($row['appplatform']);
+			$this->createddate = $row['createddate'];
 			$this->categoryId = $row['categoryid'];
-			$this->token = $this->Unescape($row['token']);
 		}
 		return $this;
 	}
@@ -140,14 +131,14 @@ class user extends POG_Base
 	* @param string $sortBy 
 	* @param boolean $ascending 
 	* @param int limit 
-	* @return array $userList
+	* @return array $appList
 	*/
 	function GetList($fcv_array = array(), $sortBy='', $ascending=true, $limit='')
 	{
 		$connection = Database::Connect();
 		$sqlLimit = ($limit != '' ? "LIMIT $limit" : '');
-		$this->pog_query = "select * from `user` ";
-		$userList = Array();
+		$this->pog_query = "select * from `app` ";
+		$appList = Array();
 		if (sizeof($fcv_array) > 0)
 		{
 			$this->pog_query .= " where ";
@@ -205,81 +196,78 @@ class user extends POG_Base
 		}
 		else
 		{
-			$sortBy = "userid";
+			$sortBy = "appid";
 		}
 		$this->pog_query .= " order by ".$sortBy." ".($ascending ? "asc" : "desc")." $sqlLimit";
 		$thisObjectName = get_class($this);
 		$cursor = Database::Reader($this->pog_query, $connection);
 		while ($row = Database::Read($cursor))
 		{
-			$user = new $thisObjectName();
-			$user->userId = $row['userid'];
-			$user->firstname = $this->Unescape($row['firstname']);
-			$user->lastname = $this->Unescape($row['lastname']);
-			$user->email = $this->Unescape($row['email']);
-			$user->pass = $this->Unescape($row['pass']);
-			$user->regdate = $row['regdate'];
-			$user->lastlogindate = $row['lastlogindate'];
-			$user->categoryId = $row['categoryid'];
-			$user->token = $this->Unescape($row['token']);
-			$userList[] = $user;
+			$app = new $thisObjectName();
+			$app->appId = $row['appid'];
+			$app->appname = $this->Unescape($row['appname']);
+			$app->appdesc = $this->Unescape($row['appdesc']);
+			$app->appimage = $this->Unescape($row['appimage']);
+			$app->applink = $this->Unescape($row['applink']);
+			$app->appplatform = $this->Unescape($row['appplatform']);
+			$app->createddate = $row['createddate'];
+			$app->categoryId = $row['categoryid'];
+			$appList[] = $app;
 		}
-		return $userList;
+		return $appList;
 	}
 	
 	
 	/**
 	* Saves the object to the database
-	* @return integer $userId
+	* @return integer $appId
 	*/
 	function Save()
 	{
 		$connection = Database::Connect();
 		$rows = 0;
-		if ($this->userId!=''){
-			$this->pog_query = "select `userid` from `user` where `userid`='".$this->userId."' LIMIT 1";
+		if ($this->appId!=''){
+			$this->pog_query = "select `appid` from `app` where `appid`='".$this->appId."' LIMIT 1";
 			$rows = Database::Query($this->pog_query, $connection);
 		}
 		if ($rows > 0)
 		{
-			$this->pog_query = "update `user` set 
-			`firstname`='".$this->Escape($this->firstname)."', 
-			`lastname`='".$this->Escape($this->lastname)."', 
-			`email`='".$this->Escape($this->email)."', 
-			`pass`='".$this->Escape($this->pass)."', 
-			`regdate`='".$this->regdate."', 
-			`lastlogindate`='".$this->lastlogindate."', 
-			`categoryid`='".$this->categoryId."', 
-			`token`='".$this->Escape($this->token)."' where `userid`='".$this->userId."'";
+			$this->pog_query = "update `app` set 
+			`appname`='".$this->Escape($this->appname)."', 
+			`appdesc`='".$this->Escape($this->appdesc)."', 
+			`appimage`='".$this->Escape($this->appimage)."', 
+			`applink`='".$this->Escape($this->applink)."', 
+			`appplatform`='".$this->Escape($this->appplatform)."', 
+			`createddate`='".$this->createddate."', 
+			`categoryid`='".$this->categoryId."' where `appid`='".$this->appId."'";
 		}
 		else
 		{
-			$this->pog_query = "insert into `user` (`firstname`, `lastname`, `email`, `pass`, `regdate`, `lastlogindate`, `categoryid`, `token` ) values (
-			'".$this->Escape($this->firstname)."', 
-			'".$this->Escape($this->lastname)."', 
-			'".$this->Escape($this->email)."', 
-			'".$this->Escape($this->pass)."', 
-			'".$this->regdate."', 
-			'".$this->lastlogindate."', 
-			'".$this->categoryId."', 
-			'".$this->Escape($this->token)."' )";
+			$this->pog_query = "insert into `app` (`appname`, `appdesc`, `appimage`, `applink`, `appplatform`, `createddate`, `categoryid` ) values (
+			'".$this->Escape($this->appname)."', 
+			'".$this->Escape($this->appdesc)."', 
+			'".$this->Escape($this->appimage)."', 
+			'".$this->Escape($this->applink)."', 
+			'".$this->Escape($this->appplatform)."', 
+			'".$this->createddate."', 
+			'".$this->categoryId."' )";
 		}
 		$insertId = Database::InsertOrUpdate($this->pog_query, $connection);
-		if ($this->userId == "")
+		if ($this->appId == "")
 		{
-			$this->userId = $insertId;
+			$this->appId = $insertId;
 		}
-		return $this->userId;
+		return $this->appId;
 	}
 	
 	
 	/**
 	* Clones the object and saves it to the database
-	* @return integer $userId
+	* @return integer $appId
 	*/
 	function SaveNew()
 	{
-		$this->userId = '';
+		$this->appId = '';
 		return $this->Save();
 	}
 	
@@ -291,7 +279,7 @@ class user extends POG_Base
 	function Delete()
 	{
 		$connection = Database::Connect();
-		$this->pog_query = "delete from `user` where `userid`='".$this->userId."'";
+		$this->pog_query = "delete from `app` where `appid`='".$this->appId."'";
 		return Database::NonQuery($this->pog_query, $connection);
 	}
 	
@@ -307,7 +295,7 @@ class user extends POG_Base
 		if (sizeof($fcv_array) > 0)
 		{
 			$connection = Database::Connect();
-			$pog_query = "delete from `user` where ";
+			$pog_query = "delete from `app` where ";
 			for ($i=0, $c=sizeof($fcv_array); $i<$c; $i++)
 			{
 				if (sizeof($fcv_array[$i]) == 1)
