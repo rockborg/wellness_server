@@ -192,9 +192,54 @@ class Request extends CI_Controller {
 	
 	/* Data Functions */
 	
+	/**
+	 * GetCategoryData
+	 * used to get apps, blogs, events, and websites in a category
+	 * @param int categoryId 
+	 * @param string type APP, BLOG, WEBSITE, EVENT
+	 * @return array of items
+	 */
+	
 	public function GetCategoryData()
 	{
+		$result = array();
 		
+		$this->form_validation->set_data($this->input->get());
+		//$this->form_validation->set_rules('categoryid','Category ID','required');
+		$this->form_validation->set_rules('datatype', 'Item Type', 'required');
+		
+		if($this->form_validation->run() == FALSE)
+		{
+			//Build response array for form failure
+			$result = array(
+			"status"=>0,
+			"data"=>$this->form_validation->error_array()
+			);			
+		}
+		else {
+			$catid = $this->input->get('categoryid');
+			$itype = $this->input->get('datatype');
+			
+			switch ($itype)
+			{
+				case "APP":
+					echo "app";
+					break;
+				case "BLOG":
+					echo 'blog';
+					break;
+				case 'WEB':
+					echo 'web';
+					break;
+				case 'EVENT':
+					echo 'event';
+					break;
+			}
+			
+		}
+		
+		echo json_encode($result);
+				
 	}
 	
 }
