@@ -223,16 +223,124 @@ class Request extends CI_Controller {
 			switch ($itype)
 			{
 				case "APP":
-					echo "app";
+					$app = new app();
+					$appList = array();
+					
+					if($this->input->get('categoryid') > 0)
+					{
+						$appList = $app->GetList(array(array('categoryid','=',$catid)));
+					}
+					else {
+						$appList = $app->GetList();
+					}
+					
+					$resultarray = array();
+					foreach($appList as $a)
+					{
+						$resultarray[] = array(
+							'appid' => $a->appId,
+							'appname' => $a->appname,
+							'appdesc' => $a->appdesc,
+							'appimage' => prep_url(base_url('images/'.$a->appimage)),
+							'applink' => $a->applink,
+							'appplatform'=> $a->appplatform,
+							'categoryid'=>$a->categoryId
+						);
+					}
+					$result = array(
+						'status'=>1,
+						'data'=>$resultarray
+					);
+					
 					break;
 				case "BLOG":
-					echo 'blog';
+					$blog = new blog();
+					$blogList = array();
+					
+					if($this->input->get('categoryid') > 0)
+					{
+						$blogList = $blog->GetList(array(array('categoryid','=',$catid)));
+					}
+					else {
+						$blogList = $blog->GetList();	
+					}
+					
+					$resultarray = array();
+					foreach($blogList as $b)
+					{
+						$resultarray[] = array(
+							'blogid'=>$b->blogId,
+							'blogname'=>$b->blogname,
+							'blogdesc'=>$b->blogdesc,
+							'blogimage'=> prep_url(base_url('images/'.$b->blogimage)),
+							'bloglink'=>$b->bloglink,
+							'categoryid' =>$b->categoryId
+						);
+					}
+					$result = array(
+						'status' => 1,
+						'data' => $resultarray
+					);
+					
 					break;
 				case 'WEB':
-					echo 'web';
+					$web = new web();
+					$webList = array();
+					
+					if($this->input->get('categoryid') > 0)
+					{
+						$webList = $web->GetList(array(array('categoryid','=',$catid)));
+					}
+					else {
+						$webList = $web->GetList();
+					}
+					
+					$resultarray = array();
+					foreach($webList as $w)
+					{
+						$resultarray[]  = array(
+							'webid'=>$w->websiteId,
+							'webname' => $w->webname,
+							'webdesc' => $w->webdesc,
+							'webimage' => prep_url(base_url('images/'.$w->webimage)),
+							'weblink' => $w->weblink,
+							'categoryid' => $w->categoryId
+						);
+					}
+					$result = array(
+						'status' => 1,
+						'data' => $resultarray
+					);
 					break;
 				case 'EVENT':
-					echo 'event';
+					$event = new event();
+					$eventList = array();
+					
+					if($this->input->get('categoryid') > 0)
+					{
+						$eventList = $event->GetList(array(array('categoryid','=',$catid)));
+					}
+					else {
+						$eventList = $event->GetList();
+					}
+					
+					$resultarray = array();
+					foreach($eventList as $e)
+					{
+						$resultarray[] = array(
+							'eventid'=>$e->eventId,
+							'eventname'=>$e->eventname,
+							'eventdesc'=>$e->eventdesc,
+							'eventimage'=> prep_url(base_url('images/'.$e->eventimage)),
+							'eventlink'=> $e->eventlink,
+							'eventdata'=> $e->eventdate,
+							'categoryid'=>$e->categoryId
+						);
+					}
+					$result = array(
+						'status' => 1,
+						'data' => $resultarray
+					);
 					break;
 			}
 			
