@@ -74,6 +74,7 @@ class Request extends CI_Controller {
 	/**
 	 * LoginUser
 	 * takes user credential and authenticates user returning a token to make future calls
+	 * Usage: LoginUser?email={user_email}&pass={user_password}
 	 * @param string username username/email of the user
 	 * @param string pass password of the user
 	 * @return object contains status of the request and array of user data including token
@@ -145,7 +146,7 @@ class Request extends CI_Controller {
 	/**
 	 * Get Categories
 	 * returns all the main categories of information in the database
-	 * 
+	 * Usage: GetCategories?
 	 * @return objectarray array of category objects
 	 */
 	 
@@ -195,6 +196,7 @@ class Request extends CI_Controller {
 	/**
 	 * GetCategoryData
 	 * used to get apps, blogs, events, and websites in a category
+	 * Usage: GetCategoryData?categoryid={categoryid|0}&datatype={APP|BLOG|WEBSITE|EVENT}
 	 * @param int categoryId 
 	 * @param string type APP, BLOG, WEBSITE, EVENT
 	 * @return array of items
@@ -205,7 +207,7 @@ class Request extends CI_Controller {
 		$result = array();
 		
 		$this->form_validation->set_data($this->input->get());
-		//$this->form_validation->set_rules('categoryid','Category ID','required');
+		$this->form_validation->set_rules('categoryid','Category ID','required');
 		$this->form_validation->set_rules('datatype', 'Item Type', 'required');
 		
 		if($this->form_validation->run() == FALSE)
