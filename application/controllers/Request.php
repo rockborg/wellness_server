@@ -152,7 +152,7 @@ class Request extends CI_Controller {
 	 
 	public function GetCategories()
 	{
-		$result = array();
+		$result = array("status"=>1,"data"=>array());
 		
 		$category = new category();
 		
@@ -198,13 +198,13 @@ class Request extends CI_Controller {
 	 * used to get apps, blogs, events, and websites in a category
 	 * Usage: GetCategoryData?categoryid={categoryid|0}&datatype={APP|BLOG|WEBSITE|EVENT}
 	 * @param int categoryId 
-	 * @param string type APP, BLOG, WEBSITE, EVENT
+	 * @param string datatype APP, BLOG, WEBSITE, EVENT
 	 * @return array of items
 	 */
 	
 	public function GetCategoryData()
 	{
-		$result = array();
+		$result = array("status"=>1,"data"=>array());
 		
 		$this->form_validation->set_data($this->input->get());
 		$this->form_validation->set_rules('categoryid','Category ID','required');
