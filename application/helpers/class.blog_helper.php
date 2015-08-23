@@ -5,7 +5,7 @@
 	CREATE TABLE `blog` (
 	`blogid` int(11) NOT NULL auto_increment,
 	`blogname` VARCHAR(255) NOT NULL,
-	`blogdesc` VARCHAR(255) NOT NULL,
+	`blogdesc` TEXT NOT NULL,
 	`blogimage` VARCHAR(255) NOT NULL,
 	`bloglink` VARCHAR(255) NOT NULL,
 	`createddate` TIMESTAMP NOT NULL,
@@ -17,7 +17,7 @@
 * @author Php Object Generator
 * @version POG 3.2 / PHP5
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
-* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=blog&attributeList=array+%28%0A++0+%3D%3E+%27blogname%27%2C%0A++1+%3D%3E+%27blogdesc%27%2C%0A++2+%3D%3E+%27blogimage%27%2C%0A++3+%3D%3E+%27bloglink%27%2C%0A++4+%3D%3E+%27createddate%27%2C%0A++5+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27BELONGSTO%27%2C%0A%29
+* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=blog&attributeList=array+%28%0A++0+%3D%3E+%27blogname%27%2C%0A++1+%3D%3E+%27blogdesc%27%2C%0A++2+%3D%3E+%27blogimage%27%2C%0A++3+%3D%3E+%27bloglink%27%2C%0A++4+%3D%3E+%27createddate%27%2C%0A++5+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27TEXT%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27BELONGSTO%27%2C%0A%29
 */
 //include_once('class.pog_base.php');
 class blog extends POG_Base
@@ -30,7 +30,7 @@ class blog extends POG_Base
 	public $blogname;
 	
 	/**
-	 * @var VARCHAR(255)
+	 * @var TEXT
 	 */
 	public $blogdesc;
 	
@@ -57,7 +57,7 @@ class blog extends POG_Base
 	public $pog_attribute_type = array(
 		"blogId" => array('db_attributes' => array("NUMERIC", "INT")),
 		"blogname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"blogdesc" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"blogdesc" => array('db_attributes' => array("TEXT", "TEXT")),
 		"blogimage" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"bloglink" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"createddate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),

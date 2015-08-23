@@ -1,0 +1,11 @@
+﻿<?xml version="1.0"?>
+<configuration date="2015/07/05" author="e.World Technology Ltd.">
+<project id="{394CAB35-9A75-4A4A-AC50-D31C1662AE27}" file="C:\Users\Apata\Documents\PHPMaker\Projects\wpfront.pmp" name="wpfront" product="PHPMaker" version="11.0" datetime="2015/07/05 14:02:39" languagefolder="phplang" userlevel="">
+<table id="app" name="app" caption="app" userlevel="" priv="1"/>
+<table id="blog" name="blog" caption="blog" userlevel="" priv="1"/>
+<table id="category" name="category" caption="category" userlevel="" priv="1"/>
+<table id="event" name="event" caption="event" userlevel="" priv="1"/>
+<table id="list_platform" name="list_platform" caption="list platform" userlevel="" priv="1"/>
+<table id="user" name="user" caption="user" userlevel="" priv="1"/>
+<table id="website" name="website" caption="website" userlevel="" priv="1"/>
+</project></configuration>

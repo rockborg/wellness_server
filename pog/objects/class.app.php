@@ -5,7 +5,7 @@
 	CREATE TABLE `app` (
 	`appid` int(11) NOT NULL auto_increment,
 	`appname` VARCHAR(255) NOT NULL,
-	`appdesc` VARCHAR(255) NOT NULL,
+	`appdesc` TEXT NOT NULL,
 	`appimage` VARCHAR(255) NOT NULL,
 	`applink` VARCHAR(255) NOT NULL,
 	`appplatform` VARCHAR(255) NOT NULL,
@@ -18,7 +18,7 @@
 * @author Php Object Generator
 * @version POG 3.2 / PHP5
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
-* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=app&attributeList=array+%28%0A++0+%3D%3E+%27appname%27%2C%0A++1+%3D%3E+%27appdesc%27%2C%0A++2+%3D%3E+%27appimage%27%2C%0A++3+%3D%3E+%27applink%27%2C%0A++4+%3D%3E+%27appplatform%27%2C%0A++5+%3D%3E+%27createddate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A%29
+* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=app&attributeList=array+%28%0A++0+%3D%3E+%27appname%27%2C%0A++1+%3D%3E+%27appdesc%27%2C%0A++2+%3D%3E+%27appimage%27%2C%0A++3+%3D%3E+%27applink%27%2C%0A++4+%3D%3E+%27appplatform%27%2C%0A++5+%3D%3E+%27createddate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27TEXT%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A%29
 */
 include_once('class.pog_base.php');
 class app extends POG_Base
@@ -31,7 +31,7 @@ class app extends POG_Base
 	public $appname;
 	
 	/**
-	 * @var VARCHAR(255)
+	 * @var TEXT
 	 */
 	public $appdesc;
 	
@@ -63,7 +63,7 @@ class app extends POG_Base
 	public $pog_attribute_type = array(
 		"appId" => array('db_attributes' => array("NUMERIC", "INT")),
 		"appname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"appdesc" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"appdesc" => array('db_attributes' => array("TEXT", "TEXT")),
 		"appimage" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"applink" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"appplatform" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),

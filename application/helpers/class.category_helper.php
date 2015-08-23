@@ -5,7 +5,7 @@
 	CREATE TABLE `category` (
 	`categoryid` int(11) NOT NULL auto_increment,
 	`categoryname` VARCHAR(255) NOT NULL,
-	`categorydesc` VARCHAR(255) NOT NULL,
+	`categorydesc` TEXT NOT NULL,
 	`categoryimage` VARCHAR(255) NOT NULL,
 	`createddate` TIMESTAMP NOT NULL, PRIMARY KEY  (`categoryid`)) ENGINE=MyISAM;
 */
@@ -15,7 +15,7 @@
 * @author Php Object Generator
 * @version POG 3.2 / PHP5
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
-* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=category&attributeList=array+%28%0A++0+%3D%3E+%27categoryname%27%2C%0A++1+%3D%3E+%27categorydesc%27%2C%0A++2+%3D%3E+%27categoryimage%27%2C%0A++3+%3D%3E+%27createddate%27%2C%0A++4+%3D%3E+%27event%27%2C%0A++5+%3D%3E+%27website%27%2C%0A++6+%3D%3E+%27app%27%2C%0A++7+%3D%3E+%27blog%27%2C%0A++8+%3D%3E+%27user%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27TIMESTAMP%27%2C%0A++4+%3D%3E+%27HASMANY%27%2C%0A++5+%3D%3E+%27HASMANY%27%2C%0A++6+%3D%3E+%27HASMANY%27%2C%0A++7+%3D%3E+%27HASMANY%27%2C%0A++8+%3D%3E+%27HASMANY%27%2C%0A%29
+* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=category&attributeList=array+%28%0A++0+%3D%3E+%27categoryname%27%2C%0A++1+%3D%3E+%27categorydesc%27%2C%0A++2+%3D%3E+%27categoryimage%27%2C%0A++3+%3D%3E+%27createddate%27%2C%0A++4+%3D%3E+%27event%27%2C%0A++5+%3D%3E+%27website%27%2C%0A++6+%3D%3E+%27app%27%2C%0A++7+%3D%3E+%27blog%27%2C%0A++8+%3D%3E+%27user%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27TEXT%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27TIMESTAMP%27%2C%0A++4+%3D%3E+%27HASMANY%27%2C%0A++5+%3D%3E+%27HASMANY%27%2C%0A++6+%3D%3E+%27HASMANY%27%2C%0A++7+%3D%3E+%27HASMANY%27%2C%0A++8+%3D%3E+%27HASMANY%27%2C%0A%29
 */
 //include_once('class.pog_base.php');
 class category extends POG_Base
@@ -28,7 +28,7 @@ class category extends POG_Base
 	public $categoryname;
 	
 	/**
-	 * @var VARCHAR(255)
+	 * @var TEXT
 	 */
 	public $categorydesc;
 	
@@ -70,7 +70,7 @@ class category extends POG_Base
 	public $pog_attribute_type = array(
 		"categoryId" => array('db_attributes' => array("NUMERIC", "INT")),
 		"categoryname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"categorydesc" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"categorydesc" => array('db_attributes' => array("TEXT", "TEXT")),
 		"categoryimage" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"createddate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
 		"event" => array('db_attributes' => array("OBJECT", "HASMANY")),

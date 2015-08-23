@@ -5,7 +5,7 @@
 	CREATE TABLE `website` (
 	`websiteid` int(11) NOT NULL auto_increment,
 	`webname` VARCHAR(255) NOT NULL,
-	`webdesc` VARCHAR(255) NOT NULL,
+	`webdesc` TEXT NOT NULL,
 	`webimage` VARCHAR(255) NOT NULL,
 	`weblink` VARCHAR(255) NOT NULL,
 	`createddate` TIMESTAMP NOT NULL,
@@ -17,7 +17,7 @@
 * @author Php Object Generator
 * @version POG 3.2 / PHP5
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
-* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=website&attributeList=array+%28%0A++0+%3D%3E+%27webname%27%2C%0A++1+%3D%3E+%27webdesc%27%2C%0A++2+%3D%3E+%27webimage%27%2C%0A++3+%3D%3E+%27weblink%27%2C%0A++4+%3D%3E+%27createddate%27%2C%0A++5+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27BELONGSTO%27%2C%0A%29
+* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=website&attributeList=array+%28%0A++0+%3D%3E+%27webname%27%2C%0A++1+%3D%3E+%27webdesc%27%2C%0A++2+%3D%3E+%27webimage%27%2C%0A++3+%3D%3E+%27weblink%27%2C%0A++4+%3D%3E+%27createddate%27%2C%0A++5+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27TEXT%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27BELONGSTO%27%2C%0A%29
 */
 include_once('class.pog_base.php');
 class website extends POG_Base
@@ -30,7 +30,7 @@ class website extends POG_Base
 	public $webname;
 	
 	/**
-	 * @var VARCHAR(255)
+	 * @var TEXT
 	 */
 	public $webdesc;
 	
@@ -57,7 +57,7 @@ class website extends POG_Base
 	public $pog_attribute_type = array(
 		"websiteId" => array('db_attributes' => array("NUMERIC", "INT")),
 		"webname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"webdesc" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"webdesc" => array('db_attributes' => array("TEXT", "TEXT")),
 		"webimage" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"weblink" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"createddate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),

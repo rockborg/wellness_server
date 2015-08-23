@@ -1,0 +1,11 @@
+﻿<?xml version="1.0"?>
+<configuration date="2015/07/05" author="e.World Technology Ltd.">
+<project id="{D3D9050E-97FC-449B-98D0-2D320E15D361}" file="" name="project1" product="PHPMaker" version="11.0" datetime="2015/07/05 09:02:30" languagefolder="phplang" userlevel="">
+<table id="app" name="app" caption="app" userlevel="" priv="1"/>
+<table id="blog" name="blog" caption="blog" userlevel="" priv="1"/>
+<table id="category" name="category" caption="category" userlevel="" priv="1"/>
+<table id="event" name="event" caption="event" userlevel="" priv="1"/>
+<table id="list_platform" name="list_platform" caption="list platform" userlevel="" priv="1"/>
+<table id="user" name="user" caption="user" userlevel="" priv="1"/>
+<table id="website" name="website" caption="website" userlevel="" priv="1"/>
+</project></configuration>

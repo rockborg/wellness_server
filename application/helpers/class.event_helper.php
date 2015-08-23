@@ -5,7 +5,7 @@
 	CREATE TABLE `event` (
 	`eventid` int(11) NOT NULL auto_increment,
 	`eventname` VARCHAR(255) NOT NULL,
-	`eventdesc` VARCHAR(255) NOT NULL,
+	`eventdesc` TEXT NOT NULL,
 	`eventimage` VARCHAR(255) NOT NULL,
 	`eventlink` VARCHAR(255) NOT NULL,
 	`eventdate` TIMESTAMP NOT NULL,
@@ -18,7 +18,7 @@
 * @author Php Object Generator
 * @version POG 3.2 / PHP5
 * @copyright Free for personal & commercial use. (Offered under the BSD license)
-* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=event&attributeList=array+%28%0A++0+%3D%3E+%27eventname%27%2C%0A++1+%3D%3E+%27eventdesc%27%2C%0A++2+%3D%3E+%27eventimage%27%2C%0A++3+%3D%3E+%27eventlink%27%2C%0A++4+%3D%3E+%27eventdate%27%2C%0A++5+%3D%3E+%27createddate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A%29
+* @link http://www.phpobjectgenerator.com/?language=php5&wrapper=pog&objectName=event&attributeList=array+%28%0A++0+%3D%3E+%27eventname%27%2C%0A++1+%3D%3E+%27eventdesc%27%2C%0A++2+%3D%3E+%27eventimage%27%2C%0A++3+%3D%3E+%27eventlink%27%2C%0A++4+%3D%3E+%27eventdate%27%2C%0A++5+%3D%3E+%27createddate%27%2C%0A++6+%3D%3E+%27category%27%2C%0A%29&typeList=array+%28%0A++0+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++1+%3D%3E+%27TEXT%27%2C%0A++2+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++3+%3D%3E+%27VARCHAR%28255%29%27%2C%0A++4+%3D%3E+%27TIMESTAMP%27%2C%0A++5+%3D%3E+%27TIMESTAMP%27%2C%0A++6+%3D%3E+%27BELONGSTO%27%2C%0A%29
 */
 //include_once('class.pog_base.php');
 class event extends POG_Base
@@ -31,7 +31,7 @@ class event extends POG_Base
 	public $eventname;
 	
 	/**
-	 * @var VARCHAR(255)
+	 * @var TEXT
 	 */
 	public $eventdesc;
 	
@@ -63,7 +63,7 @@ class event extends POG_Base
 	public $pog_attribute_type = array(
 		"eventId" => array('db_attributes' => array("NUMERIC", "INT")),
 		"eventname" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
-		"eventdesc" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
+		"eventdesc" => array('db_attributes' => array("TEXT", "TEXT")),
 		"eventimage" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"eventlink" => array('db_attributes' => array("TEXT", "VARCHAR", "255")),
 		"eventdate" => array('db_attributes' => array("NUMERIC", "TIMESTAMP")),
