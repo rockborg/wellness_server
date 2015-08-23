@@ -1,0 +1,2688 @@
+<?php
+if (session_id() == "") session_start(); // Initialize Session data
+ob_start(); // Turn on output buffering
+?>
+<?php include_once "ewcfg12.php" ?>
+<?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
+<?php include_once "phpfn12.php" ?>
+<?php include_once "lst_zoneinfo.php" ?>
+<?php include_once "userfn12.php" ?>
+<?php
+
+//
+// Page class
+//
+
+$lst_zone_list = NULL; // Initialize page object first
+
+class clst_zone_list extends clst_zone {
+
+	// Page ID
+	var $PageID = 'list';
+
+	// Project ID
+	var $ProjectID = "{7060AD9E-0B65-4EDC-A749-00C6623FA119}";
+
+	// Table name
+	var $TableName = 'lst_zone';
+
+	// Page object name
+	var $PageObjName = 'lst_zone_list';
+
+	// Grid form hidden field names
+	var $FormName = 'flst_zonelist';
+	var $FormActionName = 'k_action';
+	var $FormKeyName = 'k_key';
+	var $FormOldKeyName = 'k_oldkey';
+	var $FormBlankRowName = 'k_blankrow';
+	var $FormKeyCountName = 'key_count';
+
+	// Page name
+	function PageName() {
+		return ew_CurrentPage();
+	}
+
+	// Page URL
+	function PageUrl() {
+		$PageUrl = ew_CurrentPage() . "?";
+		if ($this->UseTokenInUrl) $PageUrl .= "t=" . $this->TableVar . "&"; // Add page token
+		return $PageUrl;
+	}
+
+	// Page URLs
+	var $AddUrl;
+	var $EditUrl;
+	var $CopyUrl;
+	var $DeleteUrl;
+	var $ViewUrl;
+	var $ListUrl;
+
+	// Export URLs
+	var $ExportPrintUrl;
+	var $ExportHtmlUrl;
+	var $ExportExcelUrl;
+	var $ExportWordUrl;
+	var $ExportXmlUrl;
+	var $ExportCsvUrl;
+	var $ExportPdfUrl;
+
+	// Custom export
+	var $ExportExcelCustom = FALSE;
+	var $ExportWordCustom = FALSE;
+	var $ExportPdfCustom = FALSE;
+	var $ExportEmailCustom = FALSE;
+
+	// Update URLs
+	var $InlineAddUrl;
+	var $InlineCopyUrl;
+	var $InlineEditUrl;
+	var $GridAddUrl;
+	var $GridEditUrl;
+	var $MultiDeleteUrl;
+	var $MultiUpdateUrl;
+
+	// Message
+	function getMessage() {
+		return @$_SESSION[EW_SESSION_MESSAGE];
+	}
+
+	function setMessage($v) {
+		ew_AddMessage($_SESSION[EW_SESSION_MESSAGE], $v);
+	}
+
+	function getFailureMessage() {
+		return @$_SESSION[EW_SESSION_FAILURE_MESSAGE];
+	}
+
+	function setFailureMessage($v) {
+		ew_AddMessage($_SESSION[EW_SESSION_FAILURE_MESSAGE], $v);
+	}
+
+	function getSuccessMessage() {
+		return @$_SESSION[EW_SESSION_SUCCESS_MESSAGE];
+	}
+
+	function setSuccessMessage($v) {
+		ew_AddMessage($_SESSION[EW_SESSION_SUCCESS_MESSAGE], $v);
+	}
+
+	function getWarningMessage() {
+		return @$_SESSION[EW_SESSION_WARNING_MESSAGE];
+	}
+
+	function setWarningMessage($v) {
+		ew_AddMessage($_SESSION[EW_SESSION_WARNING_MESSAGE], $v);
+	}
+
+	// Methods to clear message
+	function ClearMessage() {
+		$_SESSION[EW_SESSION_MESSAGE] = "";
+	}
+
+	function ClearFailureMessage() {
+		$_SESSION[EW_SESSION_FAILURE_MESSAGE] = "";
+	}
+
+	function ClearSuccessMessage() {
+		$_SESSION[EW_SESSION_SUCCESS_MESSAGE] = "";
+	}
+
+	function ClearWarningMessage() {
+		$_SESSION[EW_SESSION_WARNING_MESSAGE] = "";
+	}
+
+	function ClearMessages() {
+		$_SESSION[EW_SESSION_MESSAGE] = "";
+		$_SESSION[EW_SESSION_FAILURE_MESSAGE] = "";
+		$_SESSION[EW_SESSION_SUCCESS_MESSAGE] = "";
+		$_SESSION[EW_SESSION_WARNING_MESSAGE] = "";
+	}
+
+	// Show message
+	function ShowMessage() {
+		$hidden = FALSE;
+		$html = "";
+
+		// Message
+		$sMessage = $this->getMessage();
+		$this->Message_Showing($sMessage, "");
+		if ($sMessage <> "") { // Message in Session, display
+			if (!$hidden)
+				$sMessage = "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" . $sMessage;
+			$html .= "<div class=\"alert alert-info ewInfo\">" . $sMessage . "</div>";
+			$_SESSION[EW_SESSION_MESSAGE] = ""; // Clear message in Session
+		}
+
+		// Warning message
+		$sWarningMessage = $this->getWarningMessage();
+		$this->Message_Showing($sWarningMessage, "warning");
+		if ($sWarningMessage <> "") { // Message in Session, display
+			if (!$hidden)
+				$sWarningMessage = "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" . $sWarningMessage;
+			$html .= "<div class=\"alert alert-warning ewWarning\">" . $sWarningMessage . "</div>";
+			$_SESSION[EW_SESSION_WARNING_MESSAGE] = ""; // Clear message in Session
+		}
+
+		// Success message
+		$sSuccessMessage = $this->getSuccessMessage();
+		$this->Message_Showing($sSuccessMessage, "success");
+		if ($sSuccessMessage <> "") { // Message in Session, display
+			if (!$hidden)
+				$sSuccessMessage = "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" . $sSuccessMessage;
+			$html .= "<div class=\"alert alert-success ewSuccess\">" . $sSuccessMessage . "</div>";
+			$_SESSION[EW_SESSION_SUCCESS_MESSAGE] = ""; // Clear message in Session
+		}
+
+		// Failure message
+		$sErrorMessage = $this->getFailureMessage();
+		$this->Message_Showing($sErrorMessage, "failure");
+		if ($sErrorMessage <> "") { // Message in Session, display
+			if (!$hidden)
+				$sErrorMessage = "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" . $sErrorMessage;
+			$html .= "<div class=\"alert alert-danger ewError\">" . $sErrorMessage . "</div>";
+			$_SESSION[EW_SESSION_FAILURE_MESSAGE] = ""; // Clear message in Session
+		}
+		echo "<div class=\"ewMessageDialog\"" . (($hidden) ? " style=\"display: none;\"" : "") . ">" . $html . "</div>";
+	}
+	var $PageHeader;
+	var $PageFooter;
+
+	// Show Page Header
+	function ShowPageHeader() {
+		$sHeader = $this->PageHeader;
+		$this->Page_DataRendering($sHeader);
+		if ($sHeader <> "") { // Header exists, display
+			echo "<p>" . $sHeader . "</p>";
+		}
+	}
+
+	// Show Page Footer
+	function ShowPageFooter() {
+		$sFooter = $this->PageFooter;
+		$this->Page_DataRendered($sFooter);
+		if ($sFooter <> "") { // Footer exists, display
+			echo "<p>" . $sFooter . "</p>";
+		}
+	}
+
+	// Validate page request
+	function IsPageRequest() {
+		global $objForm;
+		if ($this->UseTokenInUrl) {
+			if ($objForm)
+				return ($this->TableVar == $objForm->GetValue("t"));
+			if (@$_GET["t"] <> "")
+				return ($this->TableVar == $_GET["t"]);
+		} else {
+			return TRUE;
+		}
+	}
+	var $Token = "";
+	var $TokenTimeout = 0;
+	var $CheckToken = EW_CHECK_TOKEN;
+	var $CheckTokenFn = "ew_CheckToken";
+	var $CreateTokenFn = "ew_CreateToken";
+
+	// Valid Post
+	function ValidPost() {
+		if (!$this->CheckToken || !ew_IsHttpPost())
+			return TRUE;
+		if (!isset($_POST[EW_TOKEN_NAME]))
+			return FALSE;
+		$fn = $this->CheckTokenFn;
+		if (is_callable($fn))
+			return $fn($_POST[EW_TOKEN_NAME], $this->TokenTimeout);
+		return FALSE;
+	}
+
+	// Create Token
+	function CreateToken() {
+		global $gsToken;
+		if ($this->CheckToken) {
+			$fn = $this->CreateTokenFn;
+			if ($this->Token == "" && is_callable($fn)) // Create token
+				$this->Token = $fn();
+			$gsToken = $this->Token; // Save to global variable
+		}
+	}
+
+	//
+	// Page class constructor
+	//
+	function __construct() {
+		global $conn, $Language;
+		$GLOBALS["Page"] = &$this;
+		$this->TokenTimeout = ew_SessionTimeoutTime();
+
+		// Language object
+		if (!isset($Language)) $Language = new cLanguage();
+
+		// Parent constuctor
+		parent::__construct();
+
+		// Table object (lst_zone)
+		if (!isset($GLOBALS["lst_zone"]) || get_class($GLOBALS["lst_zone"]) == "clst_zone") {
+			$GLOBALS["lst_zone"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["lst_zone"];
+		}
+
+		// Initialize URLs
+		$this->ExportPrintUrl = $this->PageUrl() . "export=print";
+		$this->ExportExcelUrl = $this->PageUrl() . "export=excel";
+		$this->ExportWordUrl = $this->PageUrl() . "export=word";
+		$this->ExportHtmlUrl = $this->PageUrl() . "export=html";
+		$this->ExportXmlUrl = $this->PageUrl() . "export=xml";
+		$this->ExportCsvUrl = $this->PageUrl() . "export=csv";
+		$this->ExportPdfUrl = $this->PageUrl() . "export=pdf";
+		$this->AddUrl = "lst_zoneadd.php";
+		$this->InlineAddUrl = $this->PageUrl() . "a=add";
+		$this->GridAddUrl = $this->PageUrl() . "a=gridadd";
+		$this->GridEditUrl = $this->PageUrl() . "a=gridedit";
+		$this->MultiDeleteUrl = "lst_zonedelete.php";
+		$this->MultiUpdateUrl = "lst_zoneupdate.php";
+
+		// Page ID
+		if (!defined("EW_PAGE_ID"))
+			define("EW_PAGE_ID", 'list', TRUE);
+
+		// Table name (for backward compatibility)
+		if (!defined("EW_TABLE_NAME"))
+			define("EW_TABLE_NAME", 'lst_zone', TRUE);
+
+		// Start timer
+		if (!isset($GLOBALS["gTimer"])) $GLOBALS["gTimer"] = new cTimer();
+
+		// Open connection
+		if (!isset($conn)) $conn = ew_Connect($this->DBID);
+
+		// List options
+		$this->ListOptions = new cListOptions();
+		$this->ListOptions->TableVar = $this->TableVar;
+
+		// Export options
+		$this->ExportOptions = new cListOptions();
+		$this->ExportOptions->Tag = "div";
+		$this->ExportOptions->TagClassName = "ewExportOption";
+
+		// Other options
+		$this->OtherOptions['addedit'] = new cListOptions();
+		$this->OtherOptions['addedit']->Tag = "div";
+		$this->OtherOptions['addedit']->TagClassName = "ewAddEditOption";
+		$this->OtherOptions['detail'] = new cListOptions();
+		$this->OtherOptions['detail']->Tag = "div";
+		$this->OtherOptions['detail']->TagClassName = "ewDetailOption";
+		$this->OtherOptions['action'] = new cListOptions();
+		$this->OtherOptions['action']->Tag = "div";
+		$this->OtherOptions['action']->TagClassName = "ewActionOption";
+
+		// Filter options
+		$this->FilterOptions = new cListOptions();
+		$this->FilterOptions->Tag = "div";
+		$this->FilterOptions->TagClassName = "ewFilterOption flst_zonelistsrch";
+
+		// List actions
+		$this->ListActions = new cListActions();
+	}
+
+	// 
+	//  Page_Init
+	//
+	function Page_Init() {
+		global $gsExport, $gsCustomExport, $gsExportFile, $UserProfile, $Language, $Security, $objForm;
+
+		// Security
+		$Security = new cAdvancedSecurity();
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if (!$Security->IsLoggedIn()) $this->Page_Terminate(ew_GetUrl("login.php"));
+
+		// Create form object
+		$objForm = new cFormObj();
+
+		// Get export parameters
+		$custom = "";
+		if (@$_GET["export"] <> "") {
+			$this->Export = $_GET["export"];
+			$custom = @$_GET["custom"];
+		} elseif (@$_POST["export"] <> "") {
+			$this->Export = $_POST["export"];
+			$custom = @$_POST["custom"];
+		} elseif (ew_IsHttpPost()) {
+			if (@$_POST["exporttype"] <> "")
+				$this->Export = $_POST["exporttype"];
+			$custom = @$_POST["custom"];
+		} else {
+			$this->setExportReturnUrl(ew_CurrentUrl());
+		}
+		$gsExportFile = $this->TableVar; // Get export file, used in header
+
+		// Get custom export parameters
+		if ($this->Export <> "" && $custom <> "") {
+			$this->CustomExport = $this->Export;
+			$this->Export = "print";
+		}
+		$gsCustomExport = $this->CustomExport;
+		$gsExport = $this->Export; // Get export parameter, used in header
+
+		// Update Export URLs
+		if (defined("EW_USE_PHPEXCEL"))
+			$this->ExportExcelCustom = FALSE;
+		if ($this->ExportExcelCustom)
+			$this->ExportExcelUrl .= "&amp;custom=1";
+		if (defined("EW_USE_PHPWORD"))
+			$this->ExportWordCustom = FALSE;
+		if ($this->ExportWordCustom)
+			$this->ExportWordUrl .= "&amp;custom=1";
+		if ($this->ExportPdfCustom)
+			$this->ExportPdfUrl .= "&amp;custom=1";
+		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
+
+		// Get grid add count
+		$gridaddcnt = @$_GET[EW_TABLE_GRID_ADD_ROW_COUNT];
+		if (is_numeric($gridaddcnt) && $gridaddcnt > 0)
+			$this->GridAddRowCount = $gridaddcnt;
+
+		// Set up list options
+		$this->SetupListOptions();
+
+		// Setup export options
+		$this->SetupExportOptions();
+		$this->lst_zoneid->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
+
+		// Global Page Loading event (in userfn*.php)
+		Page_Loading();
+
+		// Page Load event
+		$this->Page_Load();
+
+		// Check token
+		if (!$this->ValidPost()) {
+			echo $Language->Phrase("InvalidPostRequest");
+			$this->Page_Terminate();
+			exit();
+		}
+
+		// Process auto fill
+		if (@$_POST["ajax"] == "autofill") {
+			$results = $this->GetAutoFill(@$_POST["name"], @$_POST["q"]);
+			if ($results) {
+
+				// Clean output buffer
+				if (!EW_DEBUG_ENABLED && ob_get_length())
+					ob_end_clean();
+				echo $results;
+				$this->Page_Terminate();
+				exit();
+			}
+		}
+
+		// Create Token
+		$this->CreateToken();
+
+		// Setup other options
+		$this->SetupOtherOptions();
+
+		// Set up custom action (compatible with old version)
+		foreach ($this->CustomActions as $name => $action)
+			$this->ListActions->Add($name, $action);
+
+		// Show checkbox column if multiple action
+		foreach ($this->ListActions->Items as $listaction) {
+			if ($listaction->Select == EW_ACTION_MULTIPLE && $listaction->Allow) {
+				$this->ListOptions->Items["checkbox"]->Visible = TRUE;
+				break;
+			}
+		}
+	}
+
+	//
+	// Page_Terminate
+	//
+	function Page_Terminate($url = "") {
+		global $gsExportFile, $gTmpImages;
+
+		// Page Unload event
+		$this->Page_Unload();
+
+		// Global Page Unloaded event (in userfn*.php)
+		Page_Unloaded();
+
+		// Export
+		global $EW_EXPORT, $lst_zone;
+		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
+				$sContent = ob_get_contents();
+			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
+			$class = $EW_EXPORT[$this->CustomExport];
+			if (class_exists($class)) {
+				$doc = new $class($lst_zone);
+				$doc->Text = $sContent;
+				if ($this->Export == "email")
+					echo $this->ExportEmail($doc->Text);
+				else
+					$doc->Export();
+				ew_DeleteTmpImages(); // Delete temp images
+				exit();
+			}
+		}
+		$this->Page_Redirecting($url);
+
+		 // Close connection
+		ew_CloseConn();
+
+		// Go to URL if specified
+		if ($url <> "") {
+			if (!EW_DEBUG_ENABLED && ob_get_length())
+				ob_end_clean();
+			header("Location: " . $url);
+		}
+		exit();
+	}
+
+	// Class variables
+	var $ListOptions; // List options
+	var $ExportOptions; // Export options
+	var $SearchOptions; // Search options
+	var $OtherOptions = array(); // Other options
+	var $FilterOptions; // Filter options
+	var $ListActions; // List actions
+	var $SelectedCount = 0;
+	var $SelectedIndex = 0;
+	var $DisplayRecs = 20;
+	var $StartRec;
+	var $StopRec;
+	var $TotalRecs = 0;
+	var $RecRange = 10;
+	var $Pager;
+	var $DefaultSearchWhere = ""; // Default search WHERE clause
+	var $SearchWhere = ""; // Search WHERE clause
+	var $RecCnt = 0; // Record count
+	var $EditRowCnt;
+	var $StartRowCnt = 1;
+	var $RowCnt = 0;
+	var $Attrs = array(); // Row attributes and cell attributes
+	var $RowIndex = 0; // Row index
+	var $KeyCount = 0; // Key count
+	var $RowAction = ""; // Row action
+	var $RowOldKey = ""; // Row old key (for copy)
+	var $RecPerRow = 0;
+	var $MultiColumnClass;
+	var $MultiColumnEditClass = "col-sm-12";
+	var $MultiColumnCnt = 12;
+	var $MultiColumnEditCnt = 12;
+	var $GridCnt = 0;
+	var $ColCnt = 0;
+	var $DbMasterFilter = ""; // Master filter
+	var $DbDetailFilter = ""; // Detail filter
+	var $MasterRecordExists;	
+	var $MultiSelectKey;
+	var $Command;
+	var $RestoreSearch = FALSE;
+	var $DetailPages;
+	var $Recordset;
+	var $OldRecordset;
+
+	//
+	// Page main
+	//
+	function Page_Main() {
+		global $objForm, $Language, $gsFormError, $gsSearchError, $Security;
+
+		// Search filters
+		$sSrchAdvanced = ""; // Advanced search filter
+		$sSrchBasic = ""; // Basic search filter
+		$sFilter = "";
+
+		// Get command
+		$this->Command = strtolower(@$_GET["cmd"]);
+		if ($this->IsPageRequest()) { // Validate request
+
+			// Process list action first
+			if ($this->ProcessListAction()) // Ajax request
+				$this->Page_Terminate();
+
+			// Handle reset command
+			$this->ResetCmd();
+
+			// Set up Breadcrumb
+			if ($this->Export == "")
+				$this->SetupBreadcrumb();
+
+			// Check QueryString parameters
+			if (@$_GET["a"] <> "") {
+				$this->CurrentAction = $_GET["a"];
+
+				// Clear inline mode
+				if ($this->CurrentAction == "cancel")
+					$this->ClearInlineMode();
+
+				// Switch to inline edit mode
+				if ($this->CurrentAction == "edit")
+					$this->InlineEditMode();
+
+				// Switch to inline add mode
+				if ($this->CurrentAction == "add" || $this->CurrentAction == "copy")
+					$this->InlineAddMode();
+			} else {
+				if (@$_POST["a_list"] <> "") {
+					$this->CurrentAction = $_POST["a_list"]; // Get action
+
+					// Inline Update
+					if (($this->CurrentAction == "update" || $this->CurrentAction == "overwrite") && @$_SESSION[EW_SESSION_INLINE_MODE] == "edit")
+						$this->InlineUpdate();
+
+					// Insert Inline
+					if ($this->CurrentAction == "insert" && @$_SESSION[EW_SESSION_INLINE_MODE] == "add")
+						$this->InlineInsert();
+				}
+			}
+
+			// Hide list options
+			if ($this->Export <> "") {
+				$this->ListOptions->HideAllOptions(array("sequence"));
+				$this->ListOptions->UseDropDownButton = FALSE; // Disable drop down button
+				$this->ListOptions->UseButtonGroup = FALSE; // Disable button group
+			} elseif ($this->CurrentAction == "gridadd" || $this->CurrentAction == "gridedit") {
+				$this->ListOptions->HideAllOptions();
+				$this->ListOptions->UseDropDownButton = FALSE; // Disable drop down button
+				$this->ListOptions->UseButtonGroup = FALSE; // Disable button group
+			}
+
+			// Hide options
+			if ($this->Export <> "" || $this->CurrentAction <> "") {
+				$this->ExportOptions->HideAllOptions();
+				$this->FilterOptions->HideAllOptions();
+			}
+
+			// Hide other options
+			if ($this->Export <> "") {
+				foreach ($this->OtherOptions as &$option)
+					$option->HideAllOptions();
+			}
+
+			// Get default search criteria
+			ew_AddFilter($this->DefaultSearchWhere, $this->BasicSearchWhere(TRUE));
+
+			// Get basic search values
+			$this->LoadBasicSearchValues();
+
+			// Restore filter list
+			$this->RestoreFilterList();
+
+			// Restore search parms from Session if not searching / reset / export
+			if (($this->Export <> "" || $this->Command <> "search" && $this->Command <> "reset" && $this->Command <> "resetall") && $this->CheckSearchParms())
+				$this->RestoreSearchParms();
+
+			// Call Recordset SearchValidated event
+			$this->Recordset_SearchValidated();
+
+			// Set up sorting order
+			$this->SetUpSortOrder();
+
+			// Get basic search criteria
+			if ($gsSearchError == "")
+				$sSrchBasic = $this->BasicSearchWhere();
+		}
+
+		// Restore display records
+		if ($this->getRecordsPerPage() <> "") {
+			$this->DisplayRecs = $this->getRecordsPerPage(); // Restore from Session
+		} else {
+			$this->DisplayRecs = 20; // Load default
+		}
+
+		// Load Sorting Order
+		$this->LoadSortOrder();
+
+		// Load search default if no existing search criteria
+		if (!$this->CheckSearchParms()) {
+
+			// Load basic search from default
+			$this->BasicSearch->LoadDefault();
+			if ($this->BasicSearch->Keyword != "")
+				$sSrchBasic = $this->BasicSearchWhere();
+		}
+
+		// Build search criteria
+		ew_AddFilter($this->SearchWhere, $sSrchAdvanced);
+		ew_AddFilter($this->SearchWhere, $sSrchBasic);
+
+		// Call Recordset_Searching event
+		$this->Recordset_Searching($this->SearchWhere);
+
+		// Save search criteria
+		if ($this->Command == "search" && !$this->RestoreSearch) {
+			$this->setSearchWhere($this->SearchWhere); // Save to Session
+			$this->StartRec = 1; // Reset start record counter
+			$this->setStartRecordNumber($this->StartRec);
+		} else {
+			$this->SearchWhere = $this->getSearchWhere();
+		}
+
+		// Build filter
+		$sFilter = "";
+		ew_AddFilter($sFilter, $this->DbDetailFilter);
+		ew_AddFilter($sFilter, $this->SearchWhere);
+
+		// Set up filter in session
+		$this->setSessionWhere($sFilter);
+		$this->CurrentFilter = "";
+
+		// Export data only
+		if ($this->CustomExport == "" && in_array($this->Export, array("html","word","excel","xml","csv","email","pdf"))) {
+			$this->ExportData();
+			$this->Page_Terminate(); // Terminate response
+			exit();
+		}
+
+		// Load record count first
+		if (!$this->IsAddOrEdit()) {
+			$bSelectLimit = $this->UseSelectLimit;
+			if ($bSelectLimit) {
+				$this->TotalRecs = $this->SelectRecordCount();
+			} else {
+				if ($this->Recordset = $this->LoadRecordset())
+					$this->TotalRecs = $this->Recordset->RecordCount();
+			}
+		}
+
+		// Search options
+		$this->SetupSearchOptions();
+	}
+
+	//  Exit inline mode
+	function ClearInlineMode() {
+		$this->setKey("lst_zoneid", ""); // Clear inline edit key
+		$this->LastAction = $this->CurrentAction; // Save last action
+		$this->CurrentAction = ""; // Clear action
+		$_SESSION[EW_SESSION_INLINE_MODE] = ""; // Clear inline mode
+	}
+
+	// Switch to Inline Edit mode
+	function InlineEditMode() {
+		global $Security, $Language;
+		$bInlineEdit = TRUE;
+		if (@$_GET["lst_zoneid"] <> "") {
+			$this->lst_zoneid->setQueryStringValue($_GET["lst_zoneid"]);
+		} else {
+			$bInlineEdit = FALSE;
+		}
+		if ($bInlineEdit) {
+			if ($this->LoadRow()) {
+				$this->setKey("lst_zoneid", $this->lst_zoneid->CurrentValue); // Set up inline edit key
+				$_SESSION[EW_SESSION_INLINE_MODE] = "edit"; // Enable inline edit
+			}
+		}
+	}
+
+	// Perform update to Inline Edit record
+	function InlineUpdate() {
+		global $Language, $objForm, $gsFormError;
+		$objForm->Index = 1; 
+		$this->LoadFormValues(); // Get form values
+
+		// Validate form
+		$bInlineUpdate = TRUE;
+		if (!$this->ValidateForm()) {	
+			$bInlineUpdate = FALSE; // Form error, reset action
+			$this->setFailureMessage($gsFormError);
+		} else {
+			$bInlineUpdate = FALSE;
+			$rowkey = strval($objForm->GetValue($this->FormKeyName));
+			if ($this->SetupKeyValues($rowkey)) { // Set up key values
+				if ($this->CheckInlineEditKey()) { // Check key
+					$this->SendEmail = TRUE; // Send email on update success
+					$bInlineUpdate = $this->EditRow(); // Update record
+				} else {
+					$bInlineUpdate = FALSE;
+				}
+			}
+		}
+		if ($bInlineUpdate) { // Update success
+			if ($this->getSuccessMessage() == "")
+				$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Set up success message
+			$this->ClearInlineMode(); // Clear inline edit mode
+		} else {
+			if ($this->getFailureMessage() == "")
+				$this->setFailureMessage($Language->Phrase("UpdateFailed")); // Set update failed message
+			$this->EventCancelled = TRUE; // Cancel event
+			$this->CurrentAction = "edit"; // Stay in edit mode
+		}
+	}
+
+	// Check Inline Edit key
+	function CheckInlineEditKey() {
+
+		//CheckInlineEditKey = True
+		if (strval($this->getKey("lst_zoneid")) <> strval($this->lst_zoneid->CurrentValue))
+			return FALSE;
+		return TRUE;
+	}
+
+	// Switch to Inline Add mode
+	function InlineAddMode() {
+		global $Security, $Language;
+		$this->CurrentAction = "add";
+		$_SESSION[EW_SESSION_INLINE_MODE] = "add"; // Enable inline add
+	}
+
+	// Perform update to Inline Add/Copy record
+	function InlineInsert() {
+		global $Language, $objForm, $gsFormError;
+		$this->LoadOldRecord(); // Load old recordset
+		$objForm->Index = 0;
+		$this->LoadFormValues(); // Get form values
+
+		// Validate form
+		if (!$this->ValidateForm()) {
+			$this->setFailureMessage($gsFormError); // Set validation error message
+			$this->EventCancelled = TRUE; // Set event cancelled
+			$this->CurrentAction = "add"; // Stay in add mode
+			return;
+		}
+		$this->SendEmail = TRUE; // Send email on add success
+		if ($this->AddRow($this->OldRecordset)) { // Add record
+			if ($this->getSuccessMessage() == "")
+				$this->setSuccessMessage($Language->Phrase("AddSuccess")); // Set up add success message
+			$this->ClearInlineMode(); // Clear inline add mode
+		} else { // Add failed
+			$this->EventCancelled = TRUE; // Set event cancelled
+			$this->CurrentAction = "add"; // Stay in add mode
+		}
+	}
+
+	// Build filter for all keys
+	function BuildKeyFilter() {
+		global $objForm;
+		$sWrkFilter = "";
+
+		// Update row index and get row key
+		$rowindex = 1;
+		$objForm->Index = $rowindex;
+		$sThisKey = strval($objForm->GetValue($this->FormKeyName));
+		while ($sThisKey <> "") {
+			if ($this->SetupKeyValues($sThisKey)) {
+				$sFilter = $this->KeyFilter();
+				if ($sWrkFilter <> "") $sWrkFilter .= " OR ";
+				$sWrkFilter .= $sFilter;
+			} else {
+				$sWrkFilter = "0=1";
+				break;
+			}
+
+			// Update row index and get row key
+			$rowindex++; // Next row
+			$objForm->Index = $rowindex;
+			$sThisKey = strval($objForm->GetValue($this->FormKeyName));
+		}
+		return $sWrkFilter;
+	}
+
+	// Set up key values
+	function SetupKeyValues($key) {
+		$arrKeyFlds = explode($GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"], $key);
+		if (count($arrKeyFlds) >= 1) {
+			$this->lst_zoneid->setFormValue($arrKeyFlds[0]);
+			if (!is_numeric($this->lst_zoneid->FormValue))
+				return FALSE;
+		}
+		return TRUE;
+	}
+
+	// Get list of filters
+	function GetFilterList() {
+
+		// Initialize
+		$sFilterList = "";
+		$sFilterList = ew_Concat($sFilterList, $this->lst_zoneid->AdvancedSearch->ToJSON(), ","); // Field lst_zoneid
+		$sFilterList = ew_Concat($sFilterList, $this->name->AdvancedSearch->ToJSON(), ","); // Field name
+		$sFilterList = ew_Concat($sFilterList, $this->region->AdvancedSearch->ToJSON(), ","); // Field region
+		if ($this->BasicSearch->Keyword <> "") {
+			$sWrk = "\"psearch\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"psearchtype\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
+			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
+		}
+
+		// Return filter list in json
+		return ($sFilterList <> "") ? "{" . $sFilterList . "}" : "null";
+	}
+
+	// Restore list of filters
+	function RestoreFilterList() {
+
+		// Return if not reset filter
+		if (@$_POST["cmd"] <> "resetfilter")
+			return FALSE;
+		$filter = json_decode(ew_StripSlashes(@$_POST["filter"]), TRUE);
+		$this->Command = "search";
+
+		// Field lst_zoneid
+		$this->lst_zoneid->AdvancedSearch->SearchValue = @$filter["x_lst_zoneid"];
+		$this->lst_zoneid->AdvancedSearch->SearchOperator = @$filter["z_lst_zoneid"];
+		$this->lst_zoneid->AdvancedSearch->SearchCondition = @$filter["v_lst_zoneid"];
+		$this->lst_zoneid->AdvancedSearch->SearchValue2 = @$filter["y_lst_zoneid"];
+		$this->lst_zoneid->AdvancedSearch->SearchOperator2 = @$filter["w_lst_zoneid"];
+		$this->lst_zoneid->AdvancedSearch->Save();
+
+		// Field name
+		$this->name->AdvancedSearch->SearchValue = @$filter["x_name"];
+		$this->name->AdvancedSearch->SearchOperator = @$filter["z_name"];
+		$this->name->AdvancedSearch->SearchCondition = @$filter["v_name"];
+		$this->name->AdvancedSearch->SearchValue2 = @$filter["y_name"];
+		$this->name->AdvancedSearch->SearchOperator2 = @$filter["w_name"];
+		$this->name->AdvancedSearch->Save();
+
+		// Field region
+		$this->region->AdvancedSearch->SearchValue = @$filter["x_region"];
+		$this->region->AdvancedSearch->SearchOperator = @$filter["z_region"];
+		$this->region->AdvancedSearch->SearchCondition = @$filter["v_region"];
+		$this->region->AdvancedSearch->SearchValue2 = @$filter["y_region"];
+		$this->region->AdvancedSearch->SearchOperator2 = @$filter["w_region"];
+		$this->region->AdvancedSearch->Save();
+		$this->BasicSearch->setKeyword(@$filter["psearch"]);
+		$this->BasicSearch->setType(@$filter["psearchtype"]);
+	}
+
+	// Return basic search SQL
+	function BasicSearchSQL($arKeywords, $type) {
+		$sWhere = "";
+		$this->BuildBasicSearchSQL($sWhere, $this->name, $arKeywords, $type);
+		$this->BuildBasicSearchSQL($sWhere, $this->region, $arKeywords, $type);
+		return $sWhere;
+	}
+
+	// Build basic search SQL
+	function BuildBasicSearchSql(&$Where, &$Fld, $arKeywords, $type) {
+		$sDefCond = ($type == "OR") ? "OR" : "AND";
+		$sCond = $sDefCond;
+		$arSQL = array(); // Array for SQL parts
+		$arCond = array(); // Array for search conditions
+		$cnt = count($arKeywords);
+		$j = 0; // Number of SQL parts
+		for ($i = 0; $i < $cnt; $i++) {
+			$Keyword = $arKeywords[$i];
+			$Keyword = trim($Keyword);
+			if (EW_BASIC_SEARCH_IGNORE_PATTERN <> "") {
+				$Keyword = preg_replace(EW_BASIC_SEARCH_IGNORE_PATTERN, "\\", $Keyword);
+				$ar = explode("\\", $Keyword);
+			} else {
+				$ar = array($Keyword);
+			}
+			foreach ($ar as $Keyword) {
+				if ($Keyword <> "") {
+					$sWrk = "";
+					if ($Keyword == "OR" && $type == "") {
+						if ($j > 0)
+							$arCond[$j-1] = "OR";
+					} elseif ($Keyword == EW_NULL_VALUE) {
+						$sWrk = $Fld->FldExpression . " IS NULL";
+					} elseif ($Keyword == EW_NOT_NULL_VALUE) {
+						$sWrk = $Fld->FldExpression . " IS NOT NULL";
+					} elseif ($Fld->FldIsVirtual && $Fld->FldVirtualSearch) {
+						$sWrk = $Fld->FldVirtualExpression . ew_Like(ew_QuotedValue("%" . $Keyword . "%", EW_DATATYPE_STRING, $this->DBID), $this->DBID);
+					} elseif ($Fld->FldDataType != EW_DATATYPE_NUMBER || is_numeric($Keyword)) {
+						$sWrk = $Fld->FldBasicSearchExpression . ew_Like(ew_QuotedValue("%" . $Keyword . "%", EW_DATATYPE_STRING, $this->DBID), $this->DBID);
+					}
+					if ($sWrk <> "") {
+						$arSQL[$j] = $sWrk;
+						$arCond[$j] = $sDefCond;
+						$j += 1;
+					}
+				}
+			}
+		}
+		$cnt = count($arSQL);
+		$bQuoted = FALSE;
+		$sSql = "";
+		if ($cnt > 0) {
+			for ($i = 0; $i < $cnt-1; $i++) {
+				if ($arCond[$i] == "OR") {
+					if (!$bQuoted) $sSql .= "(";
+					$bQuoted = TRUE;
+				}
+				$sSql .= $arSQL[$i];
+				if ($bQuoted && $arCond[$i] <> "OR") {
+					$sSql .= ")";
+					$bQuoted = FALSE;
+				}
+				$sSql .= " " . $arCond[$i] . " ";
+			}
+			$sSql .= $arSQL[$cnt-1];
+			if ($bQuoted)
+				$sSql .= ")";
+		}
+		if ($sSql <> "") {
+			if ($Where <> "") $Where .= " OR ";
+			$Where .=  "(" . $sSql . ")";
+		}
+	}
+
+	// Return basic search WHERE clause based on search keyword and type
+	function BasicSearchWhere($Default = FALSE) {
+		global $Security;
+		$sSearchStr = "";
+		$sSearchKeyword = ($Default) ? $this->BasicSearch->KeywordDefault : $this->BasicSearch->Keyword;
+		$sSearchType = ($Default) ? $this->BasicSearch->TypeDefault : $this->BasicSearch->Type;
+		if ($sSearchKeyword <> "") {
+			$sSearch = trim($sSearchKeyword);
+			if ($sSearchType <> "=") {
+				$ar = array();
+
+				// Match quoted keywords (i.e.: "...")
+				if (preg_match_all('/"([^"]*)"/i', $sSearch, $matches, PREG_SET_ORDER)) {
+					foreach ($matches as $match) {
+						$p = strpos($sSearch, $match[0]);
+						$str = substr($sSearch, 0, $p);
+						$sSearch = substr($sSearch, $p + strlen($match[0]));
+						if (strlen(trim($str)) > 0)
+							$ar = array_merge($ar, explode(" ", trim($str)));
+						$ar[] = $match[1]; // Save quoted keyword
+					}
+				}
+
+				// Match individual keywords
+				if (strlen(trim($sSearch)) > 0)
+					$ar = array_merge($ar, explode(" ", trim($sSearch)));
+				$sSearchStr = $this->BasicSearchSQL($ar, $sSearchType);
+			} else {
+				$sSearchStr = $this->BasicSearchSQL(array($sSearch), $sSearchType);
+			}
+			if (!$Default) $this->Command = "search";
+		}
+		if (!$Default && $this->Command == "search") {
+			$this->BasicSearch->setKeyword($sSearchKeyword);
+			$this->BasicSearch->setType($sSearchType);
+		}
+		return $sSearchStr;
+	}
+
+	// Check if search parm exists
+	function CheckSearchParms() {
+
+		// Check basic search
+		if ($this->BasicSearch->IssetSession())
+			return TRUE;
+		return FALSE;
+	}
+
+	// Clear all search parameters
+	function ResetSearchParms() {
+
+		// Clear search WHERE clause
+		$this->SearchWhere = "";
+		$this->setSearchWhere($this->SearchWhere);
+
+		// Clear basic search parameters
+		$this->ResetBasicSearchParms();
+	}
+
+	// Load advanced search default values
+	function LoadAdvancedSearchDefault() {
+		return FALSE;
+	}
+
+	// Clear all basic search parameters
+	function ResetBasicSearchParms() {
+		$this->BasicSearch->UnsetSession();
+	}
+
+	// Restore all search parameters
+	function RestoreSearchParms() {
+		$this->RestoreSearch = TRUE;
+
+		// Restore basic search values
+		$this->BasicSearch->Load();
+	}
+
+	// Set up sort parameters
+	function SetUpSortOrder() {
+
+		// Check for "order" parameter
+		if (@$_GET["order"] <> "") {
+			$this->CurrentOrder = ew_StripSlashes(@$_GET["order"]);
+			$this->CurrentOrderType = @$_GET["ordertype"];
+			$this->UpdateSort($this->lst_zoneid); // lst_zoneid
+			$this->UpdateSort($this->name); // name
+			$this->UpdateSort($this->region); // region
+			$this->setStartRecordNumber(1); // Reset start position
+		}
+	}
+
+	// Load sort order parameters
+	function LoadSortOrder() {
+		$sOrderBy = $this->getSessionOrderBy(); // Get ORDER BY from Session
+		if ($sOrderBy == "") {
+			if ($this->getSqlOrderBy() <> "") {
+				$sOrderBy = $this->getSqlOrderBy();
+				$this->setSessionOrderBy($sOrderBy);
+			}
+		}
+	}
+
+	// Reset command
+	// - cmd=reset (Reset search parameters)
+	// - cmd=resetall (Reset search and master/detail parameters)
+	// - cmd=resetsort (Reset sort parameters)
+	function ResetCmd() {
+
+		// Check if reset command
+		if (substr($this->Command,0,5) == "reset") {
+
+			// Reset search criteria
+			if ($this->Command == "reset" || $this->Command == "resetall")
+				$this->ResetSearchParms();
+
+			// Reset sorting order
+			if ($this->Command == "resetsort") {
+				$sOrderBy = "";
+				$this->setSessionOrderBy($sOrderBy);
+				$this->lst_zoneid->setSort("");
+				$this->name->setSort("");
+				$this->region->setSort("");
+			}
+
+			// Reset start position
+			$this->StartRec = 1;
+			$this->setStartRecordNumber($this->StartRec);
+		}
+	}
+
+	// Set up list options
+	function SetupListOptions() {
+		global $Security, $Language;
+
+		// Add group option item
+		$item = &$this->ListOptions->Add($this->ListOptions->GroupOptionName);
+		$item->Body = "";
+		$item->OnLeft = FALSE;
+		$item->Visible = FALSE;
+
+		// "view"
+		$item = &$this->ListOptions->Add("view");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->Visible = $Security->IsLoggedIn();
+		$item->OnLeft = FALSE;
+
+		// "edit"
+		$item = &$this->ListOptions->Add("edit");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->Visible = $Security->IsLoggedIn();
+		$item->OnLeft = FALSE;
+
+		// "copy"
+		$item = &$this->ListOptions->Add("copy");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->Visible = $Security->IsLoggedIn() && ($this->CurrentAction == "add");
+		$item->OnLeft = FALSE;
+
+		// "delete"
+		$item = &$this->ListOptions->Add("delete");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->Visible = $Security->IsLoggedIn();
+		$item->OnLeft = FALSE;
+
+		// List actions
+		$item = &$this->ListOptions->Add("listactions");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->OnLeft = FALSE;
+		$item->Visible = FALSE;
+		$item->ShowInButtonGroup = FALSE;
+		$item->ShowInDropDown = FALSE;
+
+		// "checkbox"
+		$item = &$this->ListOptions->Add("checkbox");
+		$item->Visible = FALSE;
+		$item->OnLeft = FALSE;
+		$item->Header = "<input type=\"checkbox\" name=\"key\" id=\"key\" onclick=\"ew_SelectAllKey(this);\">";
+		$item->ShowInDropDown = FALSE;
+		$item->ShowInButtonGroup = FALSE;
+
+		// Drop down button for ListOptions
+		$this->ListOptions->UseImageAndText = TRUE;
+		$this->ListOptions->UseDropDownButton = FALSE;
+		$this->ListOptions->DropDownButtonPhrase = $Language->Phrase("ButtonListOptions");
+		$this->ListOptions->UseButtonGroup = FALSE;
+		if ($this->ListOptions->UseButtonGroup && ew_IsMobile())
+			$this->ListOptions->UseDropDownButton = TRUE;
+		$this->ListOptions->ButtonClass = "btn-sm"; // Class for button group
+
+		// Call ListOptions_Load event
+		$this->ListOptions_Load();
+		$this->SetupListOptionsExt();
+		$item = &$this->ListOptions->GetItem($this->ListOptions->GroupOptionName);
+		$item->Visible = $this->ListOptions->GroupOptionVisible();
+	}
+
+	// Render list options
+	function RenderListOptions() {
+		global $Security, $Language, $objForm;
+		$this->ListOptions->LoadDefault();
+
+		// Set up row action and key
+		if (is_numeric($this->RowIndex) && $this->CurrentMode <> "view") {
+			$objForm->Index = $this->RowIndex;
+			$ActionName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormActionName);
+			$OldKeyName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormOldKeyName);
+			$KeyName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormKeyName);
+			$BlankRowName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormBlankRowName);
+			if ($this->RowAction <> "")
+				$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $ActionName . "\" id=\"" . $ActionName . "\" value=\"" . $this->RowAction . "\">";
+			if ($this->RowAction == "delete") {
+				$rowkey = $objForm->GetValue($this->FormKeyName);
+				$this->SetupKeyValues($rowkey);
+			}
+			if ($this->RowAction == "insert" && $this->CurrentAction == "F" && $this->EmptyRow())
+				$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $BlankRowName . "\" id=\"" . $BlankRowName . "\" value=\"1\">";
+		}
+
+		// "copy"
+		$oListOpt = &$this->ListOptions->Items["copy"];
+		if (($this->CurrentAction == "add" || $this->CurrentAction == "copy") && $this->RowType == EW_ROWTYPE_ADD) { // Inline Add/Copy
+			$this->ListOptions->CustomItem = "copy"; // Show copy column only
+			$oListOpt->Body = "<div" . (($oListOpt->OnLeft) ? " style=\"text-align: right\"" : "") . ">" .
+				"<a class=\"ewGridLink ewInlineInsert\" title=\"" . ew_HtmlTitle($Language->Phrase("InsertLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InsertLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit();\">" . $Language->Phrase("InsertLink") . "</a>&nbsp;" .
+				"<a class=\"ewGridLink ewInlineCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" href=\"" . $this->PageUrl() . "a=cancel\">" . $Language->Phrase("CancelLink") . "</a>" .
+				"<input type=\"hidden\" name=\"a_list\" id=\"a_list\" value=\"insert\"></div>";
+			return;
+		}
+
+		// "edit"
+		$oListOpt = &$this->ListOptions->Items["edit"];
+		if ($this->CurrentAction == "edit" && $this->RowType == EW_ROWTYPE_EDIT) { // Inline-Edit
+			$this->ListOptions->CustomItem = "edit"; // Show edit column only
+				$oListOpt->Body = "<div" . (($oListOpt->OnLeft) ? " style=\"text-align: right\"" : "") . ">" .
+					"<a class=\"ewGridLink ewInlineUpdate\" title=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . ew_GetHashUrl($this->PageName(), $this->PageObjName . "_row_" . $this->RowCnt) . "');\">" . $Language->Phrase("UpdateLink") . "</a>&nbsp;" .
+					"<a class=\"ewGridLink ewInlineCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" href=\"" . $this->PageUrl() . "a=cancel\">" . $Language->Phrase("CancelLink") . "</a>" .
+					"<input type=\"hidden\" name=\"a_list\" id=\"a_list\" value=\"update\"></div>";
+			$oListOpt->Body .= "<input type=\"hidden\" name=\"k" . $this->RowIndex . "_key\" id=\"k" . $this->RowIndex . "_key\" value=\"" . ew_HtmlEncode($this->lst_zoneid->CurrentValue) . "\">";
+			return;
+		}
+
+		// "view"
+		$oListOpt = &$this->ListOptions->Items["view"];
+		if ($Security->IsLoggedIn())
+			$oListOpt->Body = "<a class=\"ewRowLink ewView\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewLink")) . "\" href=\"" . ew_HtmlEncode($this->ViewUrl) . "\">" . $Language->Phrase("ViewLink") . "</a>";
+		else
+			$oListOpt->Body = "";
+
+		// "edit"
+		$oListOpt = &$this->ListOptions->Items["edit"];
+		if ($Security->IsLoggedIn()) {
+			$oListOpt->Body = "<a class=\"ewRowLink ewEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("EditLink") . "</a>";
+			$oListOpt->Body .= "<a class=\"ewRowLink ewInlineEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" href=\"" . ew_HtmlEncode(ew_GetHashUrl($this->InlineEditUrl, $this->PageObjName . "_row_" . $this->RowCnt)) . "\">" . $Language->Phrase("InlineEditLink") . "</a>";
+		} else {
+			$oListOpt->Body = "";
+		}
+
+		// "delete"
+		$oListOpt = &$this->ListOptions->Items["delete"];
+		if ($Security->IsLoggedIn())
+			$oListOpt->Body = "<a class=\"ewRowLink ewDelete\"" . "" . " title=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("DeleteLink") . "</a>";
+		else
+			$oListOpt->Body = "";
+
+		// Set up list action buttons
+		$oListOpt = &$this->ListOptions->GetItem("listactions");
+		if ($oListOpt) {
+			$body = "";
+			$links = array();
+			foreach ($this->ListActions->Items as $listaction) {
+				if ($listaction->Select == EW_ACTION_SINGLE && $listaction->Allow) {
+					$action = $listaction->Action;
+					$caption = $listaction->Caption;
+					$icon = ($listaction->Icon <> "") ? "<span class=\"" . ew_HtmlEncode($listaction->Icon) . "\" data-caption=\"" . ew_HtmlTitle($caption) . "\"></span> " : "";
+					$links[] = "<li><a class=\"ewAction ewListAction\" data-action=\"" . ew_HtmlEncode($action) . "\" title=\"" . ew_HtmlTitle($caption) . "\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"\" onclick=\"ew_SubmitAction(event,jQuery.extend({key:" . $this->KeyToJson() . "}," . $listaction->ToJson(TRUE) . "));return false;\">" . $icon . $listaction->Caption . "</a></li>";
+					if (count($links) == 1) // Single button
+						$body = "<a class=\"ewAction ewListAction\" data-action=\"" . ew_HtmlEncode($action) . "\" title=\"" . ew_HtmlTitle($caption) . "\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"\" onclick=\"ew_SubmitAction(event,jQuery.extend({key:" . $this->KeyToJson() . "}," . $listaction->ToJson(TRUE) . "));return false;\">" . $Language->Phrase("ListActionButton") . "</a>";
+				}
+			}
+			if (count($links) > 1) { // More than one buttons, use dropdown
+				$body = "<button class=\"dropdown-toggle btn btn-default btn-sm ewActions\" data-toggle=\"dropdown\">" . $Language->Phrase("ListActionButton") . "<b class=\"caret\"></b></button>";
+				$content = "";
+				foreach ($links as $link)
+					$content .= "<li>" . $link . "</li>";
+				$body .= "<ul class=\"dropdown-menu" . ($oListOpt->OnLeft ? "" : " dropdown-menu-right") . "\">". $content . "</ul>";
+				$body = "<div class=\"btn-group\">" . $body . "</div>";
+			}
+			if (count($links) > 0) {
+				$oListOpt->Body = $body;
+				$oListOpt->Visible = TRUE;
+			}
+		}
+
+		// "checkbox"
+		$oListOpt = &$this->ListOptions->Items["checkbox"];
+		$oListOpt->Body = "<input type=\"checkbox\" name=\"key_m[]\" value=\"" . ew_HtmlEncode($this->lst_zoneid->CurrentValue) . "\" onclick='ew_ClickMultiCheckbox(event);'>";
+		$this->RenderListOptionsExt();
+
+		// Call ListOptions_Rendered event
+		$this->ListOptions_Rendered();
+	}
+
+	// Set up other options
+	function SetupOtherOptions() {
+		global $Language, $Security;
+		$options = &$this->OtherOptions;
+		$option = $options["addedit"];
+
+		// Add
+		$item = &$option->Add("add");
+		$item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("AddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("AddLink")) . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("AddLink") . "</a>";
+		$item->Visible = ($this->AddUrl <> "" && $Security->IsLoggedIn());
+
+		// Inline Add
+		$item = &$option->Add("inlineadd");
+		$item->Body = "<a class=\"ewAddEdit ewInlineAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineAddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineAddLink")) . "\" href=\"" . ew_HtmlEncode($this->InlineAddUrl) . "\">" .$Language->Phrase("InlineAddLink") . "</a>";
+		$item->Visible = ($this->InlineAddUrl <> "" && $Security->IsLoggedIn());
+		$option = $options["action"];
+
+		// Set up options default
+		foreach ($options as &$option) {
+			$option->UseImageAndText = TRUE;
+			$option->UseDropDownButton = FALSE;
+			$option->UseButtonGroup = TRUE;
+			$option->ButtonClass = "btn-sm"; // Class for button group
+			$item = &$option->Add($option->GroupOptionName);
+			$item->Body = "";
+			$item->Visible = FALSE;
+		}
+		$options["addedit"]->DropDownButtonPhrase = $Language->Phrase("ButtonAddEdit");
+		$options["detail"]->DropDownButtonPhrase = $Language->Phrase("ButtonDetails");
+		$options["action"]->DropDownButtonPhrase = $Language->Phrase("ButtonActions");
+
+		// Filter button
+		$item = &$this->FilterOptions->Add("savecurrentfilter");
+		$item->Body = "<a class=\"ewSaveFilter\" data-form=\"flst_zonelistsrch\" href=\"#\">" . $Language->Phrase("SaveCurrentFilter") . "</a>";
+		$item->Visible = TRUE;
+		$item = &$this->FilterOptions->Add("deletefilter");
+		$item->Body = "<a class=\"ewDeleteFilter\" data-form=\"flst_zonelistsrch\" href=\"#\">" . $Language->Phrase("DeleteFilter") . "</a>";
+		$item->Visible = TRUE;
+		$this->FilterOptions->UseDropDownButton = TRUE;
+		$this->FilterOptions->UseButtonGroup = !$this->FilterOptions->UseDropDownButton;
+		$this->FilterOptions->DropDownButtonPhrase = $Language->Phrase("Filters");
+
+		// Add group option item
+		$item = &$this->FilterOptions->Add($this->FilterOptions->GroupOptionName);
+		$item->Body = "";
+		$item->Visible = FALSE;
+	}
+
+	// Render other options
+	function RenderOtherOptions() {
+		global $Language, $Security;
+		$options = &$this->OtherOptions;
+			$option = &$options["action"];
+
+			// Set up list action buttons
+			foreach ($this->ListActions->Items as $listaction) {
+				if ($listaction->Select == EW_ACTION_MULTIPLE) {
+					$item = &$option->Add("custom_" . $listaction->Action);
+					$caption = $listaction->Caption;
+					$icon = ($listaction->Icon <> "") ? "<span class=\"" . ew_HtmlEncode($listaction->Icon) . "\" data-caption=\"" . ew_HtmlEncode($caption) . "\"></span> " : $caption;
+					$item->Body = "<a class=\"ewAction ewListAction\" title=\"" . ew_HtmlEncode($caption) . "\" data-caption=\"" . ew_HtmlEncode($caption) . "\" href=\"\" onclick=\"ew_SubmitAction(event,jQuery.extend({f:document.flst_zonelist}," . $listaction->ToJson(TRUE) . "));return false;\">" . $icon . "</a>";
+					$item->Visible = $listaction->Allow;
+				}
+			}
+
+			// Hide grid edit and other options
+			if ($this->TotalRecs <= 0) {
+				$option = &$options["addedit"];
+				$item = &$option->GetItem("gridedit");
+				if ($item) $item->Visible = FALSE;
+				$option = &$options["action"];
+				$option->HideAllOptions();
+			}
+	}
+
+	// Process list action
+	function ProcessListAction() {
+		global $Language, $Security;
+		$userlist = "";
+		$user = "";
+		$sFilter = $this->GetKeyFilter();
+		$UserAction = @$_POST["useraction"];
+		if ($sFilter <> "" && $UserAction <> "") {
+
+			// Check permission first
+			$ActionCaption = $UserAction;
+			if (array_key_exists($UserAction, $this->ListActions->Items)) {
+				$ActionCaption = $this->ListActions->Items[$UserAction]->Caption;
+				if (!$this->ListActions->Items[$UserAction]->Allow) {
+					$errmsg = str_replace('%s', $ActionCaption, $Language->Phrase("CustomActionNotAllowed"));
+					if (@$_POST["ajax"] == $UserAction) // Ajax
+						echo "<p class=\"text-danger\">" . $errmsg . "</p>";
+					else
+						$this->setFailureMessage($errmsg);
+					return FALSE;
+				}
+			}
+			$this->CurrentFilter = $sFilter;
+			$sSql = $this->SQL();
+			$conn = &$this->Connection();
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			$rs = $conn->Execute($sSql);
+			$conn->raiseErrorFn = '';
+			$this->CurrentAction = $UserAction;
+
+			// Call row action event
+			if ($rs && !$rs->EOF) {
+				$conn->BeginTrans();
+				$this->SelectedCount = $rs->RecordCount();
+				$this->SelectedIndex = 0;
+				while (!$rs->EOF) {
+					$this->SelectedIndex++;
+					$row = $rs->fields;
+					$Processed = $this->Row_CustomAction($UserAction, $row);
+					if (!$Processed) break;
+					$rs->MoveNext();
+				}
+				if ($Processed) {
+					$conn->CommitTrans(); // Commit the changes
+					if ($this->getSuccessMessage() == "")
+						$this->setSuccessMessage(str_replace('%s', $ActionCaption, $Language->Phrase("CustomActionCompleted"))); // Set up success message
+				} else {
+					$conn->RollbackTrans(); // Rollback changes
+
+					// Set up error message
+					if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
+
+						// Use the message, do nothing
+					} elseif ($this->CancelMessage <> "") {
+						$this->setFailureMessage($this->CancelMessage);
+						$this->CancelMessage = "";
+					} else {
+						$this->setFailureMessage(str_replace('%s', $ActionCaption, $Language->Phrase("CustomActionFailed")));
+					}
+				}
+			}
+			if ($rs)
+				$rs->Close();
+			if (@$_POST["ajax"] == $UserAction) { // Ajax
+				if ($this->getSuccessMessage() <> "") {
+					echo "<p class=\"text-success\">" . $this->getSuccessMessage() . "</p>";
+					$this->ClearSuccessMessage(); // Clear message
+				}
+				if ($this->getFailureMessage() <> "") {
+					echo "<p class=\"text-danger\">" . $this->getFailureMessage() . "</p>";
+					$this->ClearFailureMessage(); // Clear message
+				}
+				return TRUE;
+			}
+		}
+		return FALSE; // Not ajax request
+	}
+
+	// Set up search options
+	function SetupSearchOptions() {
+		global $Language;
+		$this->SearchOptions = new cListOptions();
+		$this->SearchOptions->Tag = "div";
+		$this->SearchOptions->TagClassName = "ewSearchOption";
+
+		// Search button
+		$item = &$this->SearchOptions->Add("searchtoggle");
+		$SearchToggleClass = ($this->SearchWhere <> "") ? " active" : " active";
+		$item->Body = "<button type=\"button\" class=\"btn btn-default ewSearchToggle" . $SearchToggleClass . "\" title=\"" . $Language->Phrase("SearchPanel") . "\" data-caption=\"" . $Language->Phrase("SearchPanel") . "\" data-toggle=\"button\" data-form=\"flst_zonelistsrch\">" . $Language->Phrase("SearchBtn") . "</button>";
+		$item->Visible = TRUE;
+
+		// Show all button
+		$item = &$this->SearchOptions->Add("showall");
+		$item->Body = "<a class=\"btn btn-default ewShowAll\" title=\"" . $Language->Phrase("ShowAll") . "\" data-caption=\"" . $Language->Phrase("ShowAll") . "\" href=\"" . $this->PageUrl() . "cmd=reset\">" . $Language->Phrase("ShowAllBtn") . "</a>";
+		$item->Visible = ($this->SearchWhere <> $this->DefaultSearchWhere && $this->SearchWhere <> "0=101");
+
+		// Button group for search
+		$this->SearchOptions->UseDropDownButton = FALSE;
+		$this->SearchOptions->UseImageAndText = TRUE;
+		$this->SearchOptions->UseButtonGroup = TRUE;
+		$this->SearchOptions->DropDownButtonPhrase = $Language->Phrase("ButtonSearch");
+
+		// Add group option item
+		$item = &$this->SearchOptions->Add($this->SearchOptions->GroupOptionName);
+		$item->Body = "";
+		$item->Visible = FALSE;
+
+		// Hide search options
+		if ($this->Export <> "" || $this->CurrentAction <> "")
+			$this->SearchOptions->HideAllOptions();
+	}
+
+	function SetupListOptionsExt() {
+		global $Security, $Language;
+	}
+
+	function RenderListOptionsExt() {
+		global $Security, $Language;
+	}
+
+	// Set up starting record parameters
+	function SetUpStartRec() {
+		if ($this->DisplayRecs == 0)
+			return;
+		if ($this->IsPageRequest()) { // Validate request
+			if (@$_GET[EW_TABLE_START_REC] <> "") { // Check for "start" parameter
+				$this->StartRec = $_GET[EW_TABLE_START_REC];
+				$this->setStartRecordNumber($this->StartRec);
+			} elseif (@$_GET[EW_TABLE_PAGE_NO] <> "") {
+				$PageNo = $_GET[EW_TABLE_PAGE_NO];
+				if (is_numeric($PageNo)) {
+					$this->StartRec = ($PageNo-1)*$this->DisplayRecs+1;
+					if ($this->StartRec <= 0) {
+						$this->StartRec = 1;
+					} elseif ($this->StartRec >= intval(($this->TotalRecs-1)/$this->DisplayRecs)*$this->DisplayRecs+1) {
+						$this->StartRec = intval(($this->TotalRecs-1)/$this->DisplayRecs)*$this->DisplayRecs+1;
+					}
+					$this->setStartRecordNumber($this->StartRec);
+				}
+			}
+		}
+		$this->StartRec = $this->getStartRecordNumber();
+
+		// Check if correct start record counter
+		if (!is_numeric($this->StartRec) || $this->StartRec == "") { // Avoid invalid start record counter
+			$this->StartRec = 1; // Reset start record counter
+			$this->setStartRecordNumber($this->StartRec);
+		} elseif (intval($this->StartRec) > intval($this->TotalRecs)) { // Avoid starting record > total records
+			$this->StartRec = intval(($this->TotalRecs-1)/$this->DisplayRecs)*$this->DisplayRecs+1; // Point to last page first record
+			$this->setStartRecordNumber($this->StartRec);
+		} elseif (($this->StartRec-1) % $this->DisplayRecs <> 0) {
+			$this->StartRec = intval(($this->StartRec-1)/$this->DisplayRecs)*$this->DisplayRecs+1; // Point to page boundary
+			$this->setStartRecordNumber($this->StartRec);
+		}
+	}
+
+	// Load default values
+	function LoadDefaultValues() {
+		$this->lst_zoneid->CurrentValue = NULL;
+		$this->lst_zoneid->OldValue = $this->lst_zoneid->CurrentValue;
+		$this->name->CurrentValue = NULL;
+		$this->name->OldValue = $this->name->CurrentValue;
+		$this->region->CurrentValue = NULL;
+		$this->region->OldValue = $this->region->CurrentValue;
+	}
+
+	// Load basic search values
+	function LoadBasicSearchValues() {
+		$this->BasicSearch->Keyword = @$_GET[EW_TABLE_BASIC_SEARCH];
+		if ($this->BasicSearch->Keyword <> "") $this->Command = "search";
+		$this->BasicSearch->Type = @$_GET[EW_TABLE_BASIC_SEARCH_TYPE];
+	}
+
+	// Load form values
+	function LoadFormValues() {
+
+		// Load from form
+		global $objForm;
+		if (!$this->lst_zoneid->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
+			$this->lst_zoneid->setFormValue($objForm->GetValue("x_lst_zoneid"));
+		if (!$this->name->FldIsDetailKey) {
+			$this->name->setFormValue($objForm->GetValue("x_name"));
+		}
+		if (!$this->region->FldIsDetailKey) {
+			$this->region->setFormValue($objForm->GetValue("x_region"));
+		}
+	}
+
+	// Restore form values
+	function RestoreFormValues() {
+		global $objForm;
+		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
+			$this->lst_zoneid->CurrentValue = $this->lst_zoneid->FormValue;
+		$this->name->CurrentValue = $this->name->FormValue;
+		$this->region->CurrentValue = $this->region->FormValue;
+	}
+
+	// Load recordset
+	function LoadRecordset($offset = -1, $rowcnt = -1) {
+
+		// Load List page SQL
+		$sSql = $this->SelectSQL();
+		$conn = &$this->Connection();
+
+		// Load recordset
+		$dbtype = ew_GetConnectionType($this->DBID);
+		if ($this->UseSelectLimit) {
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			if ($dbtype == "MSSQL") {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset, array("_hasOrderBy" => trim($this->getOrderBy()) || trim($this->getSessionOrderBy())));
+			} else {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset);
+			}
+			$conn->raiseErrorFn = '';
+		} else {
+			$rs = ew_LoadRecordset($sSql, $conn);
+		}
+
+		// Call Recordset Selected event
+		$this->Recordset_Selected($rs);
+		return $rs;
+	}
+
+	// Load row based on key values
+	function LoadRow() {
+		global $Security, $Language;
+		$sFilter = $this->KeyFilter();
+
+		// Call Row Selecting event
+		$this->Row_Selecting($sFilter);
+
+		// Load SQL based on filter
+		$this->CurrentFilter = $sFilter;
+		$sSql = $this->SQL();
+		$conn = &$this->Connection();
+		$res = FALSE;
+		$rs = ew_LoadRecordset($sSql, $conn);
+		if ($rs && !$rs->EOF) {
+			$res = TRUE;
+			$this->LoadRowValues($rs); // Load row values
+			$rs->Close();
+		}
+		return $res;
+	}
+
+	// Load row values from recordset
+	function LoadRowValues(&$rs) {
+		if (!$rs || $rs->EOF) return;
+
+		// Call Row Selected event
+		$row = &$rs->fields;
+		$this->Row_Selected($row);
+		$this->lst_zoneid->setDbValue($rs->fields('lst_zoneid'));
+		$this->name->setDbValue($rs->fields('name'));
+		$this->region->setDbValue($rs->fields('region'));
+	}
+
+	// Load DbValue from recordset
+	function LoadDbValues(&$rs) {
+		if (!$rs || !is_array($rs) && $rs->EOF) return;
+		$row = is_array($rs) ? $rs : $rs->fields;
+		$this->lst_zoneid->DbValue = $row['lst_zoneid'];
+		$this->name->DbValue = $row['name'];
+		$this->region->DbValue = $row['region'];
+	}
+
+	// Load old record
+	function LoadOldRecord() {
+
+		// Load key values from Session
+		$bValidKey = TRUE;
+		if (strval($this->getKey("lst_zoneid")) <> "")
+			$this->lst_zoneid->CurrentValue = $this->getKey("lst_zoneid"); // lst_zoneid
+		else
+			$bValidKey = FALSE;
+
+		// Load old recordset
+		if ($bValidKey) {
+			$this->CurrentFilter = $this->KeyFilter();
+			$sSql = $this->SQL();
+			$conn = &$this->Connection();
+			$this->OldRecordset = ew_LoadRecordset($sSql, $conn);
+			$this->LoadRowValues($this->OldRecordset); // Load row values
+		} else {
+			$this->OldRecordset = NULL;
+		}
+		return $bValidKey;
+	}
+
+	// Render row values based on field settings
+	function RenderRow() {
+		global $Security, $Language, $gsLanguage;
+
+		// Initialize URLs
+		$this->ViewUrl = $this->GetViewUrl();
+		$this->EditUrl = $this->GetEditUrl();
+		$this->InlineEditUrl = $this->GetInlineEditUrl();
+		$this->CopyUrl = $this->GetCopyUrl();
+		$this->InlineCopyUrl = $this->GetInlineCopyUrl();
+		$this->DeleteUrl = $this->GetDeleteUrl();
+
+		// Call Row_Rendering event
+		$this->Row_Rendering();
+
+		// Common render codes for all row types
+		// lst_zoneid
+		// name
+		// region
+
+		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
+
+		// lst_zoneid
+		$this->lst_zoneid->ViewValue = $this->lst_zoneid->CurrentValue;
+		$this->lst_zoneid->ViewCustomAttributes = "";
+
+		// name
+		$this->name->ViewValue = $this->name->CurrentValue;
+		$this->name->ViewCustomAttributes = "";
+
+		// region
+		$this->region->ViewValue = $this->region->CurrentValue;
+		$this->region->ViewCustomAttributes = "";
+
+			// lst_zoneid
+			$this->lst_zoneid->LinkCustomAttributes = "";
+			$this->lst_zoneid->HrefValue = "";
+			$this->lst_zoneid->TooltipValue = "";
+
+			// name
+			$this->name->LinkCustomAttributes = "";
+			$this->name->HrefValue = "";
+			$this->name->TooltipValue = "";
+
+			// region
+			$this->region->LinkCustomAttributes = "";
+			$this->region->HrefValue = "";
+			$this->region->TooltipValue = "";
+		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
+
+			// lst_zoneid
+			// name
+
+			$this->name->EditAttrs["class"] = "form-control";
+			$this->name->EditCustomAttributes = "";
+			$this->name->EditValue = ew_HtmlEncode($this->name->CurrentValue);
+			$this->name->PlaceHolder = ew_RemoveHtml($this->name->FldCaption());
+
+			// region
+			$this->region->EditAttrs["class"] = "form-control";
+			$this->region->EditCustomAttributes = "";
+			$this->region->EditValue = ew_HtmlEncode($this->region->CurrentValue);
+			$this->region->PlaceHolder = ew_RemoveHtml($this->region->FldCaption());
+
+			// Edit refer script
+			// lst_zoneid
+
+			$this->lst_zoneid->HrefValue = "";
+
+			// name
+			$this->name->HrefValue = "";
+
+			// region
+			$this->region->HrefValue = "";
+		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
+
+			// lst_zoneid
+			$this->lst_zoneid->EditAttrs["class"] = "form-control";
+			$this->lst_zoneid->EditCustomAttributes = "";
+			$this->lst_zoneid->EditValue = $this->lst_zoneid->CurrentValue;
+			$this->lst_zoneid->ViewCustomAttributes = "";
+
+			// name
+			$this->name->EditAttrs["class"] = "form-control";
+			$this->name->EditCustomAttributes = "";
+			$this->name->EditValue = ew_HtmlEncode($this->name->CurrentValue);
+			$this->name->PlaceHolder = ew_RemoveHtml($this->name->FldCaption());
+
+			// region
+			$this->region->EditAttrs["class"] = "form-control";
+			$this->region->EditCustomAttributes = "";
+			$this->region->EditValue = ew_HtmlEncode($this->region->CurrentValue);
+			$this->region->PlaceHolder = ew_RemoveHtml($this->region->FldCaption());
+
+			// Edit refer script
+			// lst_zoneid
+
+			$this->lst_zoneid->HrefValue = "";
+
+			// name
+			$this->name->HrefValue = "";
+
+			// region
+			$this->region->HrefValue = "";
+		}
+		if ($this->RowType == EW_ROWTYPE_ADD ||
+			$this->RowType == EW_ROWTYPE_EDIT ||
+			$this->RowType == EW_ROWTYPE_SEARCH) { // Add / Edit / Search row
+			$this->SetupFieldTitles();
+		}
+
+		// Call Row Rendered event
+		if ($this->RowType <> EW_ROWTYPE_AGGREGATEINIT)
+			$this->Row_Rendered();
+	}
+
+	// Validate form
+	function ValidateForm() {
+		global $Language, $gsFormError;
+
+		// Initialize form error message
+		$gsFormError = "";
+
+		// Check if validation required
+		if (!EW_SERVER_VALIDATE)
+			return ($gsFormError == "");
+		if (!$this->name->FldIsDetailKey && !is_null($this->name->FormValue) && $this->name->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->name->FldCaption(), $this->name->ReqErrMsg));
+		}
+		if (!$this->region->FldIsDetailKey && !is_null($this->region->FormValue) && $this->region->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->region->FldCaption(), $this->region->ReqErrMsg));
+		}
+
+		// Return validate result
+		$ValidateForm = ($gsFormError == "");
+
+		// Call Form_CustomValidate event
+		$sFormCustomError = "";
+		$ValidateForm = $ValidateForm && $this->Form_CustomValidate($sFormCustomError);
+		if ($sFormCustomError <> "") {
+			ew_AddMessage($gsFormError, $sFormCustomError);
+		}
+		return $ValidateForm;
+	}
+
+	// Update record based on key values
+	function EditRow() {
+		global $Security, $Language;
+		$sFilter = $this->KeyFilter();
+		$conn = &$this->Connection();
+		$this->CurrentFilter = $sFilter;
+		$sSql = $this->SQL();
+		$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+		$rs = $conn->Execute($sSql);
+		$conn->raiseErrorFn = '';
+		if ($rs === FALSE)
+			return FALSE;
+		if ($rs->EOF) {
+			$EditRow = FALSE; // Update Failed
+		} else {
+
+			// Save old values
+			$rsold = &$rs->fields;
+			$this->LoadDbValues($rsold);
+			$rsnew = array();
+
+			// name
+			$this->name->SetDbValueDef($rsnew, $this->name->CurrentValue, "", $this->name->ReadOnly);
+
+			// region
+			$this->region->SetDbValueDef($rsnew, $this->region->CurrentValue, "", $this->region->ReadOnly);
+
+			// Call Row Updating event
+			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
+			if ($bUpdateRow) {
+				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+				if (count($rsnew) > 0)
+					$EditRow = $this->Update($rsnew, "", $rsold);
+				else
+					$EditRow = TRUE; // No field to update
+				$conn->raiseErrorFn = '';
+				if ($EditRow) {
+				}
+			} else {
+				if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
+
+					// Use the message, do nothing
+				} elseif ($this->CancelMessage <> "") {
+					$this->setFailureMessage($this->CancelMessage);
+					$this->CancelMessage = "";
+				} else {
+					$this->setFailureMessage($Language->Phrase("UpdateCancelled"));
+				}
+				$EditRow = FALSE;
+			}
+		}
+
+		// Call Row_Updated event
+		if ($EditRow)
+			$this->Row_Updated($rsold, $rsnew);
+		$rs->Close();
+		return $EditRow;
+	}
+
+	// Add record
+	function AddRow($rsold = NULL) {
+		global $Language, $Security;
+		$conn = &$this->Connection();
+
+		// Load db values from rsold
+		if ($rsold) {
+			$this->LoadDbValues($rsold);
+		}
+		$rsnew = array();
+
+		// name
+		$this->name->SetDbValueDef($rsnew, $this->name->CurrentValue, "", FALSE);
+
+		// region
+		$this->region->SetDbValueDef($rsnew, $this->region->CurrentValue, "", FALSE);
+
+		// Call Row Inserting event
+		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
+		$bInsertRow = $this->Row_Inserting($rs, $rsnew);
+		if ($bInsertRow) {
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			$AddRow = $this->Insert($rsnew);
+			$conn->raiseErrorFn = '';
+			if ($AddRow) {
+
+				// Get insert id if necessary
+				$this->lst_zoneid->setDbValue($conn->Insert_ID());
+				$rsnew['lst_zoneid'] = $this->lst_zoneid->DbValue;
+			}
+		} else {
+			if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
+
+				// Use the message, do nothing
+			} elseif ($this->CancelMessage <> "") {
+				$this->setFailureMessage($this->CancelMessage);
+				$this->CancelMessage = "";
+			} else {
+				$this->setFailureMessage($Language->Phrase("InsertCancelled"));
+			}
+			$AddRow = FALSE;
+		}
+		if ($AddRow) {
+
+			// Call Row Inserted event
+			$rs = ($rsold == NULL) ? NULL : $rsold->fields;
+			$this->Row_Inserted($rs, $rsnew);
+		}
+		return $AddRow;
+	}
+
+	// Set up export options
+	function SetupExportOptions() {
+		global $Language;
+
+		// Printer friendly
+		$item = &$this->ExportOptions->Add("print");
+		$item->Body = "<a href=\"" . $this->ExportPrintUrl . "\" class=\"ewExportLink ewPrint\" title=\"" . ew_HtmlEncode($Language->Phrase("PrinterFriendlyText")) . "\" data-caption=\"" . ew_HtmlEncode($Language->Phrase("PrinterFriendlyText")) . "\">" . $Language->Phrase("PrinterFriendly") . "</a>";
+		$item->Visible = TRUE;
+
+		// Export to Excel
+		$item = &$this->ExportOptions->Add("excel");
+		$item->Body = "<a href=\"" . $this->ExportExcelUrl . "\" class=\"ewExportLink ewExcel\" title=\"" . ew_HtmlEncode($Language->Phrase("ExportToExcelText")) . "\" data-caption=\"" . ew_HtmlEncode($Language->Phrase("ExportToExcelText")) . "\">" . $Language->Phrase("ExportToExcel") . "</a>";
+		$item->Visible = TRUE;
+
+		// Export to Word
+		$item = &$this->ExportOptions->Add("word");
+		$item->Body = "<a href=\"" . $this->ExportWordUrl . "\" class=\"ewExportLink ewWord\" title=\"" . ew_HtmlEncode($Language->Phrase("ExportToWordText")) . "\" data-caption=\"" . ew_HtmlEncode($Language->Phrase("ExportToWordText")) . "\">" . $Language->Phrase("ExportToWord") . "</a>";
+		$item->Visible = FALSE;
+
+		// Export to Html
+		$item = &$this->ExportOptions->Add("html");
+		$item->Body = "<a href=\"" . $this->ExportHtmlUrl . "\" class=\"ewExportLink ewHtml\" title=\"" . ew_HtmlEncode($Language->Phrase("ExportToHtmlText")) . "\" data-caption=\"" . ew_HtmlEncode($Language->Phrase("ExportToHtmlText")) . "\">" . $Language->Phrase("ExportToHtml") . "</a>";
+		$item->Visible = FALSE;
+
+		// Export to Xml
+		$item = &$this->ExportOptions->Add("xml");
+		$item->Body = "<a href=\"" . $this->ExportXmlUrl . "\" class=\"ewExportLink ewXml\" title=\"" . ew_HtmlEncode($Language->Phrase("ExportToXmlText")) . "\" data-caption=\"" . ew_HtmlEncode($Language->Phrase("ExportToXmlText")) . "\">" . $Language->Phrase("ExportToXml") . "</a>";
+		$item->Visible = FALSE;
+
+		// Export to Csv
+		$item = &$this->ExportOptions->Add("csv");
+		$item->Body = "<a href=\"" . $this->ExportCsvUrl . "\" class=\"ewExportLink ewCsv\" title=\"" . ew_HtmlEncode($Language->Phrase("ExportToCsvText")) . "\" data-caption=\"" . ew_HtmlEncode($Language->Phrase("ExportToCsvText")) . "\">" . $Language->Phrase("ExportToCsv") . "</a>";
+		$item->Visible = TRUE;
+
+		// Export to Pdf
+		$item = &$this->ExportOptions->Add("pdf");
+		$item->Body = "<a href=\"" . $this->ExportPdfUrl . "\" class=\"ewExportLink ewPdf\" title=\"" . ew_HtmlEncode($Language->Phrase("ExportToPDFText")) . "\" data-caption=\"" . ew_HtmlEncode($Language->Phrase("ExportToPDFText")) . "\">" . $Language->Phrase("ExportToPDF") . "</a>";
+		$item->Visible = FALSE;
+
+		// Export to Email
+		$item = &$this->ExportOptions->Add("email");
+		$url = "";
+		$item->Body = "<button id=\"emf_lst_zone\" class=\"ewExportLink ewEmail\" title=\"" . $Language->Phrase("ExportToEmailText") . "\" data-caption=\"" . $Language->Phrase("ExportToEmailText") . "\" onclick=\"ew_EmailDialogShow({lnk:'emf_lst_zone',hdr:ewLanguage.Phrase('ExportToEmailText'),f:document.flst_zonelist,sel:false" . $url . "});\">" . $Language->Phrase("ExportToEmail") . "</button>";
+		$item->Visible = FALSE;
+
+		// Drop down button for export
+		$this->ExportOptions->UseButtonGroup = TRUE;
+		$this->ExportOptions->UseImageAndText = TRUE;
+		$this->ExportOptions->UseDropDownButton = FALSE;
+		if ($this->ExportOptions->UseButtonGroup && ew_IsMobile())
+			$this->ExportOptions->UseDropDownButton = TRUE;
+		$this->ExportOptions->DropDownButtonPhrase = $Language->Phrase("ButtonExport");
+
+		// Add group option item
+		$item = &$this->ExportOptions->Add($this->ExportOptions->GroupOptionName);
+		$item->Body = "";
+		$item->Visible = FALSE;
+	}
+
+	// Export data in HTML/CSV/Word/Excel/XML/Email/PDF format
+	function ExportData() {
+		$utf8 = (strtolower(EW_CHARSET) == "utf-8");
+		$bSelectLimit = $this->UseSelectLimit;
+
+		// Load recordset
+		if ($bSelectLimit) {
+			$this->TotalRecs = $this->SelectRecordCount();
+		} else {
+			if (!$this->Recordset)
+				$this->Recordset = $this->LoadRecordset();
+			$rs = &$this->Recordset;
+			if ($rs)
+				$this->TotalRecs = $rs->RecordCount();
+		}
+		$this->StartRec = 1;
+
+		// Export all
+		if ($this->ExportAll) {
+			set_time_limit(EW_EXPORT_ALL_TIME_LIMIT);
+			$this->DisplayRecs = $this->TotalRecs;
+			$this->StopRec = $this->TotalRecs;
+		} else { // Export one page only
+			$this->SetUpStartRec(); // Set up start record position
+
+			// Set the last record to display
+			if ($this->DisplayRecs <= 0) {
+				$this->StopRec = $this->TotalRecs;
+			} else {
+				$this->StopRec = $this->StartRec + $this->DisplayRecs - 1;
+			}
+		}
+		if ($bSelectLimit)
+			$rs = $this->LoadRecordset($this->StartRec-1, $this->DisplayRecs <= 0 ? $this->TotalRecs : $this->DisplayRecs);
+		if (!$rs) {
+			header("Content-Type:"); // Remove header
+			header("Content-Disposition:");
+			$this->ShowMessage();
+			return;
+		}
+		$this->ExportDoc = ew_ExportDocument($this, "h");
+		$Doc = &$this->ExportDoc;
+		if ($bSelectLimit) {
+			$this->StartRec = 1;
+			$this->StopRec = $this->DisplayRecs <= 0 ? $this->TotalRecs : $this->DisplayRecs;
+		} else {
+
+			//$this->StartRec = $this->StartRec;
+			//$this->StopRec = $this->StopRec;
+
+		}
+
+		// Call Page Exporting server event
+		$this->ExportDoc->ExportCustom = !$this->Page_Exporting();
+		$ParentTable = "";
+		$sHeader = $this->PageHeader;
+		$this->Page_DataRendering($sHeader);
+		$Doc->Text .= $sHeader;
+		$this->ExportDocument($Doc, $rs, $this->StartRec, $this->StopRec, "");
+		$sFooter = $this->PageFooter;
+		$this->Page_DataRendered($sFooter);
+		$Doc->Text .= $sFooter;
+
+		// Close recordset
+		$rs->Close();
+
+		// Call Page Exported server event
+		$this->Page_Exported();
+
+		// Export header and footer
+		$Doc->ExportHeaderAndFooter();
+
+		// Clean output buffer
+		if (!EW_DEBUG_ENABLED && ob_get_length())
+			ob_end_clean();
+
+		// Write debug message if enabled
+		if (EW_DEBUG_ENABLED)
+			echo ew_DebugMsg();
+
+		// Output data
+		$Doc->Export();
+	}
+
+	// Set up Breadcrumb
+	function SetupBreadcrumb() {
+		global $Breadcrumb, $Language;
+		$Breadcrumb = new cBreadcrumb();
+		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
+		$url = preg_replace('/\?cmd=reset(all){0,1}$/i', '', $url); // Remove cmd=reset / cmd=resetall
+		$Breadcrumb->Add("list", $this->TableVar, $url, "", $this->TableVar, TRUE);
+	}
+
+	// Page Load event
+	function Page_Load() {
+
+		//echo "Page Load";
+	}
+
+	// Page Unload event
+	function Page_Unload() {
+
+		//echo "Page Unload";
+	}
+
+	// Page Redirecting event
+	function Page_Redirecting(&$url) {
+
+		// Example:
+		//$url = "your URL";
+
+	}
+
+	// Message Showing event
+	// $type = ''|'success'|'failure'|'warning'
+	function Message_Showing(&$msg, $type) {
+		if ($type == 'success') {
+
+			//$msg = "your success message";
+		} elseif ($type == 'failure') {
+
+			//$msg = "your failure message";
+		} elseif ($type == 'warning') {
+
+			//$msg = "your warning message";
+		} else {
+
+			//$msg = "your message";
+		}
+	}
+
+	// Page Render event
+	function Page_Render() {
+
+		//echo "Page Render";
+	}
+
+	// Page Data Rendering event
+	function Page_DataRendering(&$header) {
+
+		// Example:
+		//$header = "your header";
+
+	}
+
+	// Page Data Rendered event
+	function Page_DataRendered(&$footer) {
+
+		// Example:
+		//$footer = "your footer";
+
+	}
+
+	// Form Custom Validate event
+	function Form_CustomValidate(&$CustomError) {
+
+		// Return error message in CustomError
+		return TRUE;
+	}
+
+	// ListOptions Load event
+	function ListOptions_Load() {
+
+		// Example:
+		//$opt = &$this->ListOptions->Add("new");
+		//$opt->Header = "xxx";
+		//$opt->OnLeft = TRUE; // Link on left
+		//$opt->MoveTo(0); // Move to first column
+
+	}
+
+	// ListOptions Rendered event
+	function ListOptions_Rendered() {
+
+		// Example: 
+		//$this->ListOptions->Items["new"]->Body = "xxx";
+
+	}
+
+	// Row Custom Action event
+	function Row_CustomAction($action, $row) {
+
+		// Return FALSE to abort
+		return TRUE;
+	}
+
+	// Page Exporting event
+	// $this->ExportDoc = export document object
+	function Page_Exporting() {
+
+		//$this->ExportDoc->Text = "my header"; // Export header
+		//return FALSE; // Return FALSE to skip default export and use Row_Export event
+
+		return TRUE; // Return TRUE to use default export and skip Row_Export event
+	}
+
+	// Row Export event
+	// $this->ExportDoc = export document object
+	function Row_Export($rs) {
+
+	    //$this->ExportDoc->Text .= "my content"; // Build HTML with field value: $rs["MyField"] or $this->MyField->ViewValue
+	}
+
+	// Page Exported event
+	// $this->ExportDoc = export document object
+	function Page_Exported() {
+
+		//$this->ExportDoc->Text .= "my footer"; // Export footer
+		//echo $this->ExportDoc->Text;
+
+	}
+}
+?>
+<?php ew_Header(FALSE) ?>
+<?php
+
+// Create page object
+if (!isset($lst_zone_list)) $lst_zone_list = new clst_zone_list();
+
+// Page init
+$lst_zone_list->Page_Init();
+
+// Page main
+$lst_zone_list->Page_Main();
+
+// Global Page Rendering event (in userfn*.php)
+Page_Rendering();
+
+// Page Rendering event
+$lst_zone_list->Page_Render();
+?>
+<?php include_once "header.php" ?>
+<?php if ($lst_zone->Export == "") { ?>
+<script type="text/javascript">
+
+// Form object
+var CurrentPageID = EW_PAGE_ID = "list";
+var CurrentForm = flst_zonelist = new ew_Form("flst_zonelist", "list");
+flst_zonelist.FormKeyCountName = '<?php echo $lst_zone_list->FormKeyCountName ?>';
+
+// Validate form
+flst_zonelist.Validate = function() {
+	if (!this.ValidateRequired)
+		return true; // Ignore validation
+	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
+	if ($fobj.find("#a_confirm").val() == "F")
+		return true;
+	var elm, felm, uelm, addcnt = 0;
+	var $k = $fobj.find("#" + this.FormKeyCountName); // Get key_count
+	var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
+	var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
+	var gridinsert = $fobj.find("#a_list").val() == "gridinsert";
+	for (var i = startcnt; i <= rowcnt; i++) {
+		var infix = ($k[0]) ? String(i) : "";
+		$fobj.data("rowindex", infix);
+			elm = this.GetElements("x" + infix + "_name");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $lst_zone->name->FldCaption(), $lst_zone->name->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_region");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $lst_zone->region->FldCaption(), $lst_zone->region->ReqErrMsg)) ?>");
+
+			// Fire Form_CustomValidate event
+			if (!this.Form_CustomValidate(fobj))
+				return false;
+	}
+	return true;
+}
+
+// Form_CustomValidate event
+flst_zonelist.Form_CustomValidate = 
+ function(fobj) { // DO NOT CHANGE THIS LINE!
+
+ 	// Your custom validation code here, return false if invalid. 
+ 	return true;
+ }
+
+// Use JavaScript validation or not
+<?php if (EW_CLIENT_VALIDATE) { ?>
+flst_zonelist.ValidateRequired = true;
+<?php } else { ?>
+flst_zonelist.ValidateRequired = false; 
+<?php } ?>
+
+// Dynamic selection lists
+// Form object for search
+
+var CurrentSearchForm = flst_zonelistsrch = new ew_Form("flst_zonelistsrch");
+</script>
+<script type="text/javascript">
+
+// Write your client script here, no need to add script tags.
+</script>
+<?php } ?>
+<?php if ($lst_zone->Export == "") { ?>
+<div class="ewToolbar">
+<?php if ($lst_zone->Export == "") { ?>
+<?php $Breadcrumb->Render(); ?>
+<?php } ?>
+<?php if ($lst_zone_list->TotalRecs > 0 && $lst_zone_list->ExportOptions->Visible()) { ?>
+<?php $lst_zone_list->ExportOptions->Render("body") ?>
+<?php } ?>
+<?php if ($lst_zone_list->SearchOptions->Visible()) { ?>
+<?php $lst_zone_list->SearchOptions->Render("body") ?>
+<?php } ?>
+<?php if ($lst_zone_list->FilterOptions->Visible()) { ?>
+<?php $lst_zone_list->FilterOptions->Render("body") ?>
+<?php } ?>
+<?php if ($lst_zone->Export == "") { ?>
+<?php echo $Language->SelectionForm(); ?>
+<?php } ?>
+<div class="clearfix"></div>
+</div>
+<?php } ?>
+<?php
+	$bSelectLimit = $lst_zone_list->UseSelectLimit;
+	if ($bSelectLimit) {
+		if ($lst_zone_list->TotalRecs <= 0)
+			$lst_zone_list->TotalRecs = $lst_zone->SelectRecordCount();
+	} else {
+		if (!$lst_zone_list->Recordset && ($lst_zone_list->Recordset = $lst_zone_list->LoadRecordset()))
+			$lst_zone_list->TotalRecs = $lst_zone_list->Recordset->RecordCount();
+	}
+	$lst_zone_list->StartRec = 1;
+	if ($lst_zone_list->DisplayRecs <= 0 || ($lst_zone->Export <> "" && $lst_zone->ExportAll)) // Display all records
+		$lst_zone_list->DisplayRecs = $lst_zone_list->TotalRecs;
+	if (!($lst_zone->Export <> "" && $lst_zone->ExportAll))
+		$lst_zone_list->SetUpStartRec(); // Set up start record position
+	if ($bSelectLimit)
+		$lst_zone_list->Recordset = $lst_zone_list->LoadRecordset($lst_zone_list->StartRec-1, $lst_zone_list->DisplayRecs);
+
+	// Set no record found message
+	if ($lst_zone->CurrentAction == "" && $lst_zone_list->TotalRecs == 0) {
+		if ($lst_zone_list->SearchWhere == "0=101")
+			$lst_zone_list->setWarningMessage($Language->Phrase("EnterSearchCriteria"));
+		else
+			$lst_zone_list->setWarningMessage($Language->Phrase("NoRecord"));
+	}
+$lst_zone_list->RenderOtherOptions();
+?>
+<?php if ($Security->IsLoggedIn()) { ?>
+<?php if ($lst_zone->Export == "" && $lst_zone->CurrentAction == "") { ?>
+<form name="flst_zonelistsrch" id="flst_zonelistsrch" class="form-inline ewForm" action="<?php echo ew_CurrentPage() ?>">
+<?php $SearchPanelClass = ($lst_zone_list->SearchWhere <> "") ? " in" : " in"; ?>
+<div id="flst_zonelistsrch_SearchPanel" class="ewSearchPanel collapse<?php echo $SearchPanelClass ?>">
+<input type="hidden" name="cmd" value="search">
+<input type="hidden" name="t" value="lst_zone">
+	<div class="ewBasicSearch">
+<div id="xsr_1" class="ewRow">
+	<div class="ewQuickSearch input-group">
+	<input type="text" name="<?php echo EW_TABLE_BASIC_SEARCH ?>" id="<?php echo EW_TABLE_BASIC_SEARCH ?>" class="form-control" value="<?php echo ew_HtmlEncode($lst_zone_list->BasicSearch->getKeyword()) ?>" placeholder="<?php echo ew_HtmlEncode($Language->Phrase("Search")) ?>">
+	<input type="hidden" name="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" id="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" value="<?php echo ew_HtmlEncode($lst_zone_list->BasicSearch->getType()) ?>">
+	<div class="input-group-btn">
+		<button type="button" data-toggle="dropdown" class="btn btn-default"><span id="searchtype"><?php echo $lst_zone_list->BasicSearch->getTypeNameShort() ?></span><span class="caret"></span></button>
+		<ul class="dropdown-menu pull-right" role="menu">
+			<li<?php if ($lst_zone_list->BasicSearch->getType() == "") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this)"><?php echo $Language->Phrase("QuickSearchAuto") ?></a></li>
+			<li<?php if ($lst_zone_list->BasicSearch->getType() == "=") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'=')"><?php echo $Language->Phrase("QuickSearchExact") ?></a></li>
+			<li<?php if ($lst_zone_list->BasicSearch->getType() == "AND") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'AND')"><?php echo $Language->Phrase("QuickSearchAll") ?></a></li>
+			<li<?php if ($lst_zone_list->BasicSearch->getType() == "OR") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'OR')"><?php echo $Language->Phrase("QuickSearchAny") ?></a></li>
+		</ul>
+	<button class="btn btn-primary ewButton" name="btnsubmit" id="btnsubmit" type="submit"><?php echo $Language->Phrase("QuickSearchBtn") ?></button>
+	</div>
+	</div>
+</div>
+	</div>
+</div>
+</form>
+<?php } ?>
+<?php } ?>
+<?php $lst_zone_list->ShowPageHeader(); ?>
+<?php
+$lst_zone_list->ShowMessage();
+?>
+<?php if ($lst_zone_list->TotalRecs > 0 || $lst_zone->CurrentAction <> "") { ?>
+<div class="panel panel-default ewGrid">
+<form name="flst_zonelist" id="flst_zonelist" class="form-inline ewForm ewListForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($lst_zone_list->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $lst_zone_list->Token ?>">
+<?php } ?>
+<input type="hidden" name="t" value="lst_zone">
+<div id="gmp_lst_zone" class="<?php if (ew_IsResponsiveLayout()) { echo "table-responsive "; } ?>ewGridMiddlePanel">
+<?php if ($lst_zone_list->TotalRecs > 0 || $lst_zone->CurrentAction == "add" || $lst_zone->CurrentAction == "copy") { ?>
+<table id="tbl_lst_zonelist" class="table ewTable">
+<?php echo $lst_zone->TableCustomInnerHtml ?>
+<thead><!-- Table header -->
+	<tr class="ewTableHeader">
+<?php
+
+// Header row
+$lst_zone_list->RowType = EW_ROWTYPE_HEADER;
+
+// Render list options
+$lst_zone_list->RenderListOptions();
+
+// Render list options (header, left)
+$lst_zone_list->ListOptions->Render("header", "left");
+?>
+<?php if ($lst_zone->lst_zoneid->Visible) { // lst_zoneid ?>
+	<?php if ($lst_zone->SortUrl($lst_zone->lst_zoneid) == "") { ?>
+		<th data-name="lst_zoneid"><div id="elh_lst_zone_lst_zoneid" class="lst_zone_lst_zoneid"><div class="ewTableHeaderCaption"><?php echo $lst_zone->lst_zoneid->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="lst_zoneid"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $lst_zone->SortUrl($lst_zone->lst_zoneid) ?>',1);"><div id="elh_lst_zone_lst_zoneid" class="lst_zone_lst_zoneid">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $lst_zone->lst_zoneid->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($lst_zone->lst_zoneid->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($lst_zone->lst_zoneid->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($lst_zone->name->Visible) { // name ?>
+	<?php if ($lst_zone->SortUrl($lst_zone->name) == "") { ?>
+		<th data-name="name"><div id="elh_lst_zone_name" class="lst_zone_name"><div class="ewTableHeaderCaption"><?php echo $lst_zone->name->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="name"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $lst_zone->SortUrl($lst_zone->name) ?>',1);"><div id="elh_lst_zone_name" class="lst_zone_name">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $lst_zone->name->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($lst_zone->name->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($lst_zone->name->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($lst_zone->region->Visible) { // region ?>
+	<?php if ($lst_zone->SortUrl($lst_zone->region) == "") { ?>
+		<th data-name="region"><div id="elh_lst_zone_region" class="lst_zone_region"><div class="ewTableHeaderCaption"><?php echo $lst_zone->region->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="region"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $lst_zone->SortUrl($lst_zone->region) ?>',1);"><div id="elh_lst_zone_region" class="lst_zone_region">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $lst_zone->region->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($lst_zone->region->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($lst_zone->region->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php
+
+// Render list options (header, right)
+$lst_zone_list->ListOptions->Render("header", "right");
+?>
+	</tr>
+</thead>
+<tbody>
+<?php
+	if ($lst_zone->CurrentAction == "add" || $lst_zone->CurrentAction == "copy") {
+		$lst_zone_list->RowIndex = 0;
+		$lst_zone_list->KeyCount = $lst_zone_list->RowIndex;
+		if ($lst_zone->CurrentAction == "add")
+			$lst_zone_list->LoadDefaultValues();
+		if ($lst_zone->EventCancelled) // Insert failed
+			$lst_zone_list->RestoreFormValues(); // Restore form values
+
+		// Set row properties
+		$lst_zone->ResetAttrs();
+		$lst_zone->RowAttrs = array_merge($lst_zone->RowAttrs, array('data-rowindex'=>0, 'id'=>'r0_lst_zone', 'data-rowtype'=>EW_ROWTYPE_ADD));
+		$lst_zone->RowType = EW_ROWTYPE_ADD;
+
+		// Render row
+		$lst_zone_list->RenderRow();
+
+		// Render list options
+		$lst_zone_list->RenderListOptions();
+		$lst_zone_list->StartRowCnt = 0;
+?>
+	<tr<?php echo $lst_zone->RowAttributes() ?>>
+<?php
+
+// Render list options (body, left)
+$lst_zone_list->ListOptions->Render("body", "left", $lst_zone_list->RowCnt);
+?>
+	<?php if ($lst_zone->lst_zoneid->Visible) { // lst_zoneid ?>
+		<td data-name="lst_zoneid">
+<input type="hidden" data-table="lst_zone" data-field="x_lst_zoneid" name="o<?php echo $lst_zone_list->RowIndex ?>_lst_zoneid" id="o<?php echo $lst_zone_list->RowIndex ?>_lst_zoneid" value="<?php echo ew_HtmlEncode($lst_zone->lst_zoneid->OldValue) ?>">
+</td>
+	<?php } ?>
+	<?php if ($lst_zone->name->Visible) { // name ?>
+		<td data-name="name">
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_name" class="form-group lst_zone_name">
+<input type="text" data-table="lst_zone" data-field="x_name" name="x<?php echo $lst_zone_list->RowIndex ?>_name" id="x<?php echo $lst_zone_list->RowIndex ?>_name" size="30" maxlength="255" placeholder="<?php echo ew_HtmlEncode($lst_zone->name->getPlaceHolder()) ?>" value="<?php echo $lst_zone->name->EditValue ?>"<?php echo $lst_zone->name->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="lst_zone" data-field="x_name" name="o<?php echo $lst_zone_list->RowIndex ?>_name" id="o<?php echo $lst_zone_list->RowIndex ?>_name" value="<?php echo ew_HtmlEncode($lst_zone->name->OldValue) ?>">
+</td>
+	<?php } ?>
+	<?php if ($lst_zone->region->Visible) { // region ?>
+		<td data-name="region">
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_region" class="form-group lst_zone_region">
+<input type="text" data-table="lst_zone" data-field="x_region" name="x<?php echo $lst_zone_list->RowIndex ?>_region" id="x<?php echo $lst_zone_list->RowIndex ?>_region" size="30" maxlength="255" placeholder="<?php echo ew_HtmlEncode($lst_zone->region->getPlaceHolder()) ?>" value="<?php echo $lst_zone->region->EditValue ?>"<?php echo $lst_zone->region->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="lst_zone" data-field="x_region" name="o<?php echo $lst_zone_list->RowIndex ?>_region" id="o<?php echo $lst_zone_list->RowIndex ?>_region" value="<?php echo ew_HtmlEncode($lst_zone->region->OldValue) ?>">
+</td>
+	<?php } ?>
+<?php
+
+// Render list options (body, right)
+$lst_zone_list->ListOptions->Render("body", "right", $lst_zone_list->RowCnt);
+?>
+<script type="text/javascript">
+flst_zonelist.UpdateOpts(<?php echo $lst_zone_list->RowIndex ?>);
+</script>
+	</tr>
+<?php
+}
+?>
+<?php
+if ($lst_zone->ExportAll && $lst_zone->Export <> "") {
+	$lst_zone_list->StopRec = $lst_zone_list->TotalRecs;
+} else {
+
+	// Set the last record to display
+	if ($lst_zone_list->TotalRecs > $lst_zone_list->StartRec + $lst_zone_list->DisplayRecs - 1)
+		$lst_zone_list->StopRec = $lst_zone_list->StartRec + $lst_zone_list->DisplayRecs - 1;
+	else
+		$lst_zone_list->StopRec = $lst_zone_list->TotalRecs;
+}
+
+// Restore number of post back records
+if ($objForm) {
+	$objForm->Index = -1;
+	if ($objForm->HasValue($lst_zone_list->FormKeyCountName) && ($lst_zone->CurrentAction == "gridadd" || $lst_zone->CurrentAction == "gridedit" || $lst_zone->CurrentAction == "F")) {
+		$lst_zone_list->KeyCount = $objForm->GetValue($lst_zone_list->FormKeyCountName);
+		$lst_zone_list->StopRec = $lst_zone_list->StartRec + $lst_zone_list->KeyCount - 1;
+	}
+}
+$lst_zone_list->RecCnt = $lst_zone_list->StartRec - 1;
+if ($lst_zone_list->Recordset && !$lst_zone_list->Recordset->EOF) {
+	$lst_zone_list->Recordset->MoveFirst();
+	$bSelectLimit = $lst_zone_list->UseSelectLimit;
+	if (!$bSelectLimit && $lst_zone_list->StartRec > 1)
+		$lst_zone_list->Recordset->Move($lst_zone_list->StartRec - 1);
+} elseif (!$lst_zone->AllowAddDeleteRow && $lst_zone_list->StopRec == 0) {
+	$lst_zone_list->StopRec = $lst_zone->GridAddRowCount;
+}
+
+// Initialize aggregate
+$lst_zone->RowType = EW_ROWTYPE_AGGREGATEINIT;
+$lst_zone->ResetAttrs();
+$lst_zone_list->RenderRow();
+$lst_zone_list->EditRowCnt = 0;
+if ($lst_zone->CurrentAction == "edit")
+	$lst_zone_list->RowIndex = 1;
+while ($lst_zone_list->RecCnt < $lst_zone_list->StopRec) {
+	$lst_zone_list->RecCnt++;
+	if (intval($lst_zone_list->RecCnt) >= intval($lst_zone_list->StartRec)) {
+		$lst_zone_list->RowCnt++;
+
+		// Set up key count
+		$lst_zone_list->KeyCount = $lst_zone_list->RowIndex;
+
+		// Init row class and style
+		$lst_zone->ResetAttrs();
+		$lst_zone->CssClass = "";
+		if ($lst_zone->CurrentAction == "gridadd") {
+			$lst_zone_list->LoadDefaultValues(); // Load default values
+		} else {
+			$lst_zone_list->LoadRowValues($lst_zone_list->Recordset); // Load row values
+		}
+		$lst_zone->RowType = EW_ROWTYPE_VIEW; // Render view
+		if ($lst_zone->CurrentAction == "edit") {
+			if ($lst_zone_list->CheckInlineEditKey() && $lst_zone_list->EditRowCnt == 0) { // Inline edit
+				$lst_zone->RowType = EW_ROWTYPE_EDIT; // Render edit
+			}
+		}
+		if ($lst_zone->CurrentAction == "edit" && $lst_zone->RowType == EW_ROWTYPE_EDIT && $lst_zone->EventCancelled) { // Update failed
+			$objForm->Index = 1;
+			$lst_zone_list->RestoreFormValues(); // Restore form values
+		}
+		if ($lst_zone->RowType == EW_ROWTYPE_EDIT) // Edit row
+			$lst_zone_list->EditRowCnt++;
+
+		// Set up row id / data-rowindex
+		$lst_zone->RowAttrs = array_merge($lst_zone->RowAttrs, array('data-rowindex'=>$lst_zone_list->RowCnt, 'id'=>'r' . $lst_zone_list->RowCnt . '_lst_zone', 'data-rowtype'=>$lst_zone->RowType));
+
+		// Render row
+		$lst_zone_list->RenderRow();
+
+		// Render list options
+		$lst_zone_list->RenderListOptions();
+?>
+	<tr<?php echo $lst_zone->RowAttributes() ?>>
+<?php
+
+// Render list options (body, left)
+$lst_zone_list->ListOptions->Render("body", "left", $lst_zone_list->RowCnt);
+?>
+	<?php if ($lst_zone->lst_zoneid->Visible) { // lst_zoneid ?>
+		<td data-name="lst_zoneid"<?php echo $lst_zone->lst_zoneid->CellAttributes() ?>>
+<?php if ($lst_zone->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_lst_zoneid" class="form-group lst_zone_lst_zoneid">
+<span<?php echo $lst_zone->lst_zoneid->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $lst_zone->lst_zoneid->EditValue ?></p></span>
+</span>
+<input type="hidden" data-table="lst_zone" data-field="x_lst_zoneid" name="x<?php echo $lst_zone_list->RowIndex ?>_lst_zoneid" id="x<?php echo $lst_zone_list->RowIndex ?>_lst_zoneid" value="<?php echo ew_HtmlEncode($lst_zone->lst_zoneid->CurrentValue) ?>">
+<?php } ?>
+<?php if ($lst_zone->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_lst_zoneid" class="lst_zone_lst_zoneid">
+<span<?php echo $lst_zone->lst_zoneid->ViewAttributes() ?>>
+<?php echo $lst_zone->lst_zoneid->ListViewValue() ?></span>
+</span>
+<?php } ?>
+<a id="<?php echo $lst_zone_list->PageObjName . "_row_" . $lst_zone_list->RowCnt ?>"></a></td>
+	<?php } ?>
+	<?php if ($lst_zone->name->Visible) { // name ?>
+		<td data-name="name"<?php echo $lst_zone->name->CellAttributes() ?>>
+<?php if ($lst_zone->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_name" class="form-group lst_zone_name">
+<input type="text" data-table="lst_zone" data-field="x_name" name="x<?php echo $lst_zone_list->RowIndex ?>_name" id="x<?php echo $lst_zone_list->RowIndex ?>_name" size="30" maxlength="255" placeholder="<?php echo ew_HtmlEncode($lst_zone->name->getPlaceHolder()) ?>" value="<?php echo $lst_zone->name->EditValue ?>"<?php echo $lst_zone->name->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($lst_zone->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_name" class="lst_zone_name">
+<span<?php echo $lst_zone->name->ViewAttributes() ?>>
+<?php echo $lst_zone->name->ListViewValue() ?></span>
+</span>
+<?php } ?>
+</td>
+	<?php } ?>
+	<?php if ($lst_zone->region->Visible) { // region ?>
+		<td data-name="region"<?php echo $lst_zone->region->CellAttributes() ?>>
+<?php if ($lst_zone->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_region" class="form-group lst_zone_region">
+<input type="text" data-table="lst_zone" data-field="x_region" name="x<?php echo $lst_zone_list->RowIndex ?>_region" id="x<?php echo $lst_zone_list->RowIndex ?>_region" size="30" maxlength="255" placeholder="<?php echo ew_HtmlEncode($lst_zone->region->getPlaceHolder()) ?>" value="<?php echo $lst_zone->region->EditValue ?>"<?php echo $lst_zone->region->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($lst_zone->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $lst_zone_list->RowCnt ?>_lst_zone_region" class="lst_zone_region">
+<span<?php echo $lst_zone->region->ViewAttributes() ?>>
+<?php echo $lst_zone->region->ListViewValue() ?></span>
+</span>
+<?php } ?>
+</td>
+	<?php } ?>
+<?php
+
+// Render list options (body, right)
+$lst_zone_list->ListOptions->Render("body", "right", $lst_zone_list->RowCnt);
+?>
+	</tr>
+<?php if ($lst_zone->RowType == EW_ROWTYPE_ADD || $lst_zone->RowType == EW_ROWTYPE_EDIT) { ?>
+<script type="text/javascript">
+flst_zonelist.UpdateOpts(<?php echo $lst_zone_list->RowIndex ?>);
+</script>
+<?php } ?>
+<?php
+	}
+	if ($lst_zone->CurrentAction <> "gridadd")
+		$lst_zone_list->Recordset->MoveNext();
+}
+?>
+</tbody>
+</table>
+<?php } ?>
+<?php if ($lst_zone->CurrentAction == "add" || $lst_zone->CurrentAction == "copy") { ?>
+<input type="hidden" name="<?php echo $lst_zone_list->FormKeyCountName ?>" id="<?php echo $lst_zone_list->FormKeyCountName ?>" value="<?php echo $lst_zone_list->KeyCount ?>">
+<?php } ?>
+<?php if ($lst_zone->CurrentAction == "edit") { ?>
+<input type="hidden" name="<?php echo $lst_zone_list->FormKeyCountName ?>" id="<?php echo $lst_zone_list->FormKeyCountName ?>" value="<?php echo $lst_zone_list->KeyCount ?>">
+<?php } ?>
+<?php if ($lst_zone->CurrentAction == "") { ?>
+<input type="hidden" name="a_list" id="a_list" value="">
+<?php } ?>
+</div>
+</form>
+<?php
+
+// Close recordset
+if ($lst_zone_list->Recordset)
+	$lst_zone_list->Recordset->Close();
+?>
+<?php if ($lst_zone->Export == "") { ?>
+<div class="panel-footer ewGridLowerPanel">
+<?php if ($lst_zone->CurrentAction <> "gridadd" && $lst_zone->CurrentAction <> "gridedit") { ?>
+<form name="ewPagerForm" class="ewForm form-inline ewPagerForm" action="<?php echo ew_CurrentPage() ?>">
+<?php if (!isset($lst_zone_list->Pager)) $lst_zone_list->Pager = new cPrevNextPager($lst_zone_list->StartRec, $lst_zone_list->DisplayRecs, $lst_zone_list->TotalRecs) ?>
+<?php if ($lst_zone_list->Pager->RecordCount > 0) { ?>
+<div class="ewPager">
+<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
+<div class="ewPrevNext"><div class="input-group">
+<div class="input-group-btn">
+<!--first page button-->
+	<?php if ($lst_zone_list->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $lst_zone_list->PageUrl() ?>start=<?php echo $lst_zone_list->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } ?>
+<!--previous page button-->
+	<?php if ($lst_zone_list->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $lst_zone_list->PageUrl() ?>start=<?php echo $lst_zone_list->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } ?>
+</div>
+<!--current page number-->
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $lst_zone_list->Pager->CurrentPage ?>">
+<div class="input-group-btn">
+<!--next page button-->
+	<?php if ($lst_zone_list->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $lst_zone_list->PageUrl() ?>start=<?php echo $lst_zone_list->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } ?>
+<!--last page button-->
+	<?php if ($lst_zone_list->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $lst_zone_list->PageUrl() ?>start=<?php echo $lst_zone_list->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } ?>
+</div>
+</div>
+</div>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $lst_zone_list->Pager->PageCount ?></span>
+</div>
+<div class="ewPager ewRec">
+	<span><?php echo $Language->Phrase("Record") ?>&nbsp;<?php echo $lst_zone_list->Pager->FromIndex ?>&nbsp;<?php echo $Language->Phrase("To") ?>&nbsp;<?php echo $lst_zone_list->Pager->ToIndex ?>&nbsp;<?php echo $Language->Phrase("Of") ?>&nbsp;<?php echo $lst_zone_list->Pager->RecordCount ?></span>
+</div>
+<?php } ?>
+</form>
+<?php } ?>
+<div class="ewListOtherOptions">
+<?php
+	foreach ($lst_zone_list->OtherOptions as &$option)
+		$option->Render("body", "bottom");
+?>
+</div>
+<div class="clearfix"></div>
+</div>
+<?php } ?>
+</div>
+<?php } ?>
+<?php if ($lst_zone_list->TotalRecs == 0 && $lst_zone->CurrentAction == "") { // Show other options ?>
+<div class="ewListOtherOptions">
+<?php
+	foreach ($lst_zone_list->OtherOptions as &$option) {
+		$option->ButtonClass = "";
+		$option->Render("body", "");
+	}
+?>
+</div>
+<div class="clearfix"></div>
+<?php } ?>
+<?php if ($lst_zone->Export == "") { ?>
+<script type="text/javascript">
+flst_zonelistsrch.Init();
+flst_zonelistsrch.FilterList = <?php echo $lst_zone_list->GetFilterList() ?>;
+flst_zonelist.Init();
+</script>
+<?php } ?>
+<?php
+$lst_zone_list->ShowPageFooter();
+if (EW_DEBUG_ENABLED)
+	echo ew_DebugMsg();
+?>
+<?php if ($lst_zone->Export == "") { ?>
+<script type="text/javascript">
+
+// Write your table-specific startup script here
+// document.write("page loaded");
+
+</script>
+<?php } ?>
+<?php include_once "footer.php" ?>
+<?php
+$lst_zone_list->Page_Terminate();
+?>

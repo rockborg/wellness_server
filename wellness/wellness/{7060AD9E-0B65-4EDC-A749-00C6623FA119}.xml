@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<configuration date="2015/08/23" author="e.World Technology Ltd.">
+<project id="{7060AD9E-0B65-4EDC-A749-00C6623FA119}" file="C:\Users\11919\Documents\PHPMaker\Projects\wellness.pmp" name="wellness" product="PHPMaker" version="12.0" datetime="2015/08/23 10:59:42" languagefolder="phplang" userlevel="-2,&quot;Anonymous&quot;,0;">
+<table id="activities" name="activities" caption="Activities" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="app" name="app" caption="app" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="blog" name="blog" caption="blog" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="category" name="category" caption="category" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="event" name="event" caption="event" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="events" name="events" caption="Events" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="list_platform" name="list_platform" caption="list platform" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="lst_age" name="lst_age" caption="Options for Age" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="lst_category" name="lst_category" caption="Options for Category" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="lst_focus" name="lst_focus" caption="Options for Program Focus" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="lst_prgtype" name="lst_prgtype" caption="Options for Program Type" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="lst_zone" name="lst_zone" caption="Optioins for Zone" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="services" name="services" caption="Services" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="settings" name="settings" caption="Settings" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="tips" name="tips" caption="Tips" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="user" name="user" caption="user" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+<table id="website" name="website" caption="website" userlevel="-2,&quot;Anonymous&quot;,0;" priv="1"/>
+</project></configuration>
